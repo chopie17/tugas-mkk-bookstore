@@ -1,24 +1,23 @@
 <template>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    <div class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 :class="isDark ? 'text-white' : 'text-slate-900'" class="text-3xl font-extrabold">Live Chat Admin</h1>
-        <p :class="isDark ? 'text-slate-400' : 'text-slate-500'" class="text-xs mt-1">Kelola dan balas obrolan pelanggan (HTTP Polling Active)</p>
+  <div class="h-full flex flex-col overflow-hidden transition-colors duration-300">
+    <!-- Admin Header Mini Bar -->
+    <div class="px-4 py-3 border-b flex items-center justify-between shrink-0" :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-[#FFF8EC] border-b-2 border-black'">
+      <div class="flex items-center gap-2">
+        <h1 :class="isDark ? 'text-white' : 'text-slate-900'" class="text-base font-black">Live Chat Admin</h1>
+        <span :class="isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-emerald-100 text-emerald-800 border-emerald-400'" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold border">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live Admin
+        </span>
       </div>
-
-      <span :class="isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' : 'bg-emerald-50 text-emerald-700 border-emerald-200'" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border">
-        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span> Live Admin Connected
-      </span>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-[600px]">
+    <div class="flex-1 flex overflow-hidden relative">
       <!-- User Conversations Sidebar -->
-      <div :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/80'" class="rounded-3xl border shadow-sm overflow-hidden flex flex-col">
-        <div :class="isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-50 border-slate-100 text-slate-700'" class="p-4 border-b font-bold text-xs uppercase tracking-wider">
+      <aside :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'" class="w-72 sm:w-80 border-r flex flex-col shrink-0">
+        <div :class="isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-[#FFF8EC] border-slate-200 text-slate-900'" class="p-4 border-b font-bold text-xs uppercase tracking-wider">
           Daftar Obrolan Pelanggan
         </div>
 
-        <div :class="isDark ? 'divide-slate-800' : 'divide-slate-100'" class="flex-grow overflow-y-auto divide-y custom-scrollbar">
+        <div :class="isDark ? 'divide-slate-800' : 'divide-slate-200'" class="flex-grow overflow-y-auto divide-y custom-scrollbar">
           <div v-if="loadingUsers" :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="text-center py-10 text-xs">Memuat pengguna...</div>
           <div v-else-if="userList.length === 0" :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="text-center py-10 text-xs">Belum ada obrolan masuk.</div>
           <div 
@@ -27,7 +26,7 @@
             @click="selectUser(u)" 
             :class="selectedUser?.id === u.id 
               ? (isDark ? 'bg-indigo-900/40 border-l-4 border-indigo-500' : 'bg-indigo-50/80 border-l-4 border-indigo-600')
-              : (isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-50')" 
+              : (isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-100')" 
             class="p-4 cursor-pointer transition-colors flex items-center gap-3"
           >
             <div class="w-10 h-10 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center shrink-0 text-sm shadow-sm">
@@ -39,14 +38,19 @@
                 <h4 :class="isDark ? 'text-white' : 'text-slate-900'" class="font-bold text-xs truncate">{{ u.name }}</h4>
                 <span :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="text-[9px]">{{ u.last_time }}</span>
               </div>
-              <p :class="isDark ? 'text-slate-400' : 'text-slate-500'" class="text-[11px] truncate mt-0.5">{{ u.last_message || 'Obrolan baru' }}</p>
+              <div class="flex items-center justify-between mt-0.5">
+                <p :class="isDark ? 'text-slate-400' : 'text-slate-500'" class="text-[11px] truncate flex-1">{{ u.last_message || 'Obrolan baru' }}</p>
+                <span v-if="u.unread > 0" class="ml-2 px-1.5 py-0.5 rounded-full bg-rose-500 text-white text-[9px] font-black shrink-0 animate-pulse">
+                  {{ u.unread }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </aside>
 
       <!-- Chat Box Panel -->
-      <div :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200/80'" class="md:col-span-2 rounded-3xl border shadow-lg overflow-hidden flex flex-col">
+      <main class="flex-1 flex flex-col min-w-0 bg-transparent relative">
         <div v-if="!selectedUser" :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="flex-grow flex flex-col items-center justify-center p-8 text-center">
           <div class="text-5xl mb-3">💬</div>
           <h4 :class="isDark ? 'text-slate-300' : 'text-slate-700'" class="font-bold text-sm">Pilih Obrolan Pelanggan</h4>
@@ -67,17 +71,24 @@
             </div>
           </div>
 
-          <!-- Messages Container -->
-          <div ref="chatContainer" :class="isDark ? 'bg-slate-950' : 'bg-slate-50/50'" class="flex-grow p-6 overflow-y-auto space-y-4 custom-scrollbar">
+          <div ref="chatContainer" 
+            :class="isDark ? 'bg-slate-950' : 'bg-[#FAF7F0]'"
+            class="flex-grow p-6 overflow-y-auto space-y-4 custom-scrollbar"
+          >
             <div v-for="chat in chats" :key="chat.id" :class="chat.sender === 'admin' ? 'justify-end' : 'justify-start'" class="flex items-end gap-2">
-              <div v-if="chat.sender === 'user'" class="w-7 h-7 rounded-full bg-slate-700 text-white font-bold text-xs flex items-center justify-center shrink-0">
+              <div v-if="chat.sender === 'user'" 
+                :class="isDark ? 'bg-slate-700 text-white' : 'bg-[#D4B8FF] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]'"
+                class="w-7 h-7 rounded-full font-bold text-xs flex items-center justify-center shrink-0"
+              >
                 U
               </div>
 
               <div 
                 :class="chat.sender === 'admin' 
                   ? 'bg-indigo-600 text-white rounded-t-2xl rounded-l-2xl' 
-                  : (isDark ? 'bg-slate-800 text-slate-100 border border-slate-700' : 'bg-white text-slate-800 border border-slate-200')" 
+                  : (isDark 
+                      ? 'bg-slate-800 text-slate-100 border border-slate-700' 
+                      : 'bg-[#FFF8EC] text-slate-800 border-2 border-black shadow-[2px_2px_0px_#1A1A1A]')" 
                 class="p-3.5 max-w-sm text-xs space-y-1 rounded-t-2xl rounded-r-2xl shadow-sm"
               >
                 <p class="font-semibold text-[10px] opacity-75">{{ chat.sender === 'admin' ? 'Saya (Admin)' : selectedUser.name }}</p>
@@ -85,28 +96,37 @@
                 <p class="text-[9px] text-right opacity-60">{{ chat.created_at }}</p>
               </div>
 
-              <div v-if="chat.sender === 'admin'" class="w-7 h-7 rounded-full bg-indigo-600 text-white font-bold text-xs flex items-center justify-center shrink-0">
+              <div v-if="chat.sender === 'admin'" 
+                :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]'"
+                class="w-7 h-7 rounded-full font-bold text-xs flex items-center justify-center shrink-0"
+              >
                 A
               </div>
             </div>
           </div>
 
-          <!-- Reply Input Form -->
-          <form @submit.prevent="sendMessage" :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-100'" class="p-4 border-t flex items-center gap-3">
+          <!-- Reply Input Form - FIXED at bottom -->
+          <form @submit.prevent="sendMessage" 
+            :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-[#FFF8EC] border-t-2 border-[#1A1A1A]'"
+            class="p-4 border-t flex items-center gap-3 shrink-0 relative z-10"
+          >
             <input 
               v-model="pesanInput" 
               type="text" 
               placeholder="Balas pesan ke pelanggan..." 
               required 
-              :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-slate-50 border-slate-300 text-slate-900'"
-              class="flex-grow px-4 py-3 text-xs rounded-xl border focus:ring-2 focus:ring-indigo-500 outline-none" 
+              :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-2 border-black text-slate-900 shadow-[2px_2px_0px_#1A1A1A] placeholder-slate-400'"
+              class="flex-grow px-4 py-3 text-xs rounded-xl border focus:outline-none" 
             />
-            <button type="submit" :disabled="sending" class="px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-md shadow-indigo-500/20 transition-colors shrink-0 disabled:opacity-50">
+            <button type="submit" :disabled="sending" 
+              :class="isDark ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] hover:translate-x-[-1px] active:translate-x-[1px]'"
+              class="px-5 py-3 rounded-xl text-xs font-black shadow-md transition-all shrink-0 disabled:opacity-50"
+            >
               Balas 🚀
             </button>
           </form>
         </template>
-      </div>
+      </main>
     </div>
   </div>
 </template>
@@ -140,10 +160,6 @@ const fetchUserList = async () => {
   try {
     const res = await api.get('/api/chats')
     userList.value = res.data || []
-    if (!selectedUser.value && userList.value.length > 0) {
-      selectedUser.value = userList.value[0]
-      await fetchConversation()
-    }
   } catch (e) {
     console.error(e)
   } finally {
@@ -164,6 +180,10 @@ const fetchConversation = async () => {
 
 const selectUser = async (u: any) => {
   selectedUser.value = u
+  u.unread = 0
+  try {
+    await api.post('/api/chats/mark-as-read', { user_id: u.id })
+  } catch (e) {}
   await fetchConversation()
 }
 

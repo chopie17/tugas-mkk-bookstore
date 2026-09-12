@@ -43,6 +43,7 @@ class OrderController extends Controller
             'items' => 'required|array|min:1',
             'items.*.book_id' => 'required|exists:books,id',
             'items.*.qty' => 'required|integer|min:1',
+            'payment_method' => 'nullable|string|in:cash,bank_transfer,qris', // nullable karena belum wajib dari frontend
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -76,6 +77,7 @@ class OrderController extends Controller
                 'kode_pesanan' => $kodePesanan,
                 'user_id' => $request->user()->id,
                 'status' => 'pending',
+                'payment_method' => $request->payment_method ?? 'cash',
                 'total_harga' => $totalHarga,
             ]);
 

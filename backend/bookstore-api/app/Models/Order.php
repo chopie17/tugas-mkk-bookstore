@@ -15,6 +15,7 @@ class Order extends Model
         'kode_pesanan',
         'user_id',
         'status',
+        'payment_method',
         'total_harga',
         'cash',
         'kembalian',

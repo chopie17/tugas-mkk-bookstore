@@ -30,8 +30,11 @@ const isChatPage = computed(() => {
   return route.path.includes('/chat')
 })
 
-const navigateToChat = () => {
+const navigateToChat = async () => {
   unreadCount.value = 0
+  try {
+    await api.post('/api/chats/mark-as-read')
+  } catch (e) {}
   if (authStore.isAdmin) {
     navigateTo('/admin/chat')
   } else {
@@ -40,18 +43,16 @@ const navigateToChat = () => {
 }
 
 const checkUnread = async () => {
-  if (!authStore.isAuthenticated || isChatPage.value) return
+  if (!authStore.isAuthenticated || isChatPage.value) {
+    unreadCount.value = 0
+    return
+  }
   try {
-    const res = await api.get('/api/chats')
-    const chats = res.data || []
-    if (chats.length > 0) {
-      const lastMsg = chats[chats.length - 1]
-      const isMyMsg = authStore.isAdmin ? lastMsg.sender === 'admin' : lastMsg.sender === 'user'
-      if (!isMyMsg) {
-        unreadCount.value = 1
-      }
-    }
-  } catch (e) {}
+    const res: any = await api.get('/api/chats/unread-count')
+    unreadCount.value = res.unread_count ?? res.data?.unread_count ?? 0
+  } catch (e) {
+    unreadCount.value = 0
+  }
 }
 
 onMounted(() => {

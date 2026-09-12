@@ -1,24 +1,36 @@
 <template>
   <div 
-    class="min-h-screen flex flex-col md:flex-row font-sans antialiased pb-16 md:pb-0 transition-colors duration-300"
-    :class="isDark ? 'bg-slate-950 text-slate-100' : 'bg-slate-100 text-slate-800'"
+    class="flex flex-col md:flex-row antialiased transition-colors duration-300 font-['Space_Grotesk']"
+    :class="[
+      isDark ? 'bg-slate-950 text-slate-100' : 'bg-[#FAF7F0] text-slate-900',
+      isChatPage ? 'h-screen overflow-hidden pb-16 md:pb-0' : 'min-h-screen pb-24 md:pb-0'
+    ]"
   >
     <!-- Desktop Sidebar -->
     <Sidebar />
 
     <!-- Right Main Content Wrapper -->
-    <div class="flex-grow flex flex-col min-w-0">
+    <div class="flex-grow flex flex-col min-w-0 min-h-0">
       <!-- Header Bar -->
       <Header />
 
       <!-- Main Content Container -->
       <main 
-        class="flex-grow p-3 sm:p-6 overflow-y-auto transition-colors duration-300"
-        :class="isDark ? 'bg-slate-950' : 'bg-slate-100'"
+        class="flex-1 flex flex-col min-h-0 transition-colors duration-300"
+        :class="[
+          isDark ? 'bg-slate-950' : 'bg-[#FAF7F0]',
+          isChatPage ? 'p-0 overflow-hidden' : 'p-3 sm:p-6 overflow-y-auto'
+        ]"
       >
         <div 
-          class="min-h-full rounded-2xl sm:rounded-3xl p-4 sm:p-6 border transition-colors duration-300"
-          :class="isDark ? 'bg-slate-900/90 border-slate-800/90 shadow-2xl text-slate-100' : 'bg-white border-slate-200 shadow-sm text-slate-800'"
+          class="transition-colors duration-300"
+          :class="[
+            isChatPage 
+              ? 'flex-1 flex flex-col h-full overflow-hidden' 
+              : (isDark 
+                  ? 'min-h-full rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-slate-900/90 border border-slate-800/90 shadow-2xl text-slate-100' 
+                  : 'min-h-full rounded-2xl sm:rounded-3xl p-4 sm:p-6 bg-[#FFF8EC] border-2.5 border-[#1A1A1A] shadow-[5px_5px_0px_#1A1A1A] text-slate-900')
+          ]"
         >
           <slot />
         </div>
@@ -27,19 +39,54 @@
 
     <!-- Mobile Bottom Navigation Bar (Shown ONLY on Mobile < md) -->
     <nav 
-      :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-400' : 'bg-white border-slate-200 text-slate-600 shadow-lg'"
-      class="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t flex items-center justify-around z-40 px-2 shadow-2xl transition-colors duration-300"
+      :class="isDark ? 'bg-slate-900 border-t border-slate-800' : 'bg-[#FAF7F0] border-t-0'"
+      class="md:hidden fixed bottom-0 left-0 right-0 z-40 transition-colors duration-300"
+      :style="!isDark ? 'box-shadow: 0 -1px 0 rgba(0,0,0,0.08)' : ''"
     >
-      <template v-for="item in bottomNavItems" :key="item.path">
-        <NuxtLink 
-          :to="item.path" 
-          class="flex flex-col items-center justify-center flex-1 h-full text-[10px] font-black transition-colors"
-          :class="route.path === item.path ? 'text-indigo-400 font-extrabold' : 'hover:text-slate-400'"
-        >
-          <span class="text-lg leading-none mb-1">{{ item.icon }}</span>
-          <span>{{ item.label }}</span>
-        </NuxtLink>
-      </template>
+      <div class="flex items-end justify-around h-16 px-2 pb-2">
+        <template v-for="item in bottomNavItems" :key="item.path">
+          <NuxtLink 
+            :to="item.path" 
+            class="relative flex flex-col items-center justify-end flex-1 h-full transition-all duration-300"
+          >
+            <!-- Active: elevated bubble circle -->
+            <template v-if="route.path === item.path">
+              <span 
+                class="absolute flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all duration-300"
+                :class="isDark 
+                  ? 'bg-indigo-600 border-2 border-slate-800 shadow-lg -top-5' 
+                  : 'bg-[#C8F53F] border-2 border-black shadow-[3px_3px_0px_#1A1A1A] -top-5'"
+                style="left: 50%; transform: translateX(-50%)"
+              >
+                <span class="text-2xl leading-none">{{ item.icon }}</span>
+                <span 
+                  v-if="item.path.includes('/chat') && hasUnreadChat" 
+                  class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-black animate-pulse"
+                >1</span>
+              </span>
+              <span 
+                class="text-[9px] font-black tracking-wide mb-0.5"
+                :class="isDark ? 'text-indigo-400' : 'text-black'"
+              >{{ item.label }}</span>
+            </template>
+
+            <!-- Inactive: normal icon + label -->
+            <template v-else>
+              <div class="relative">
+                <span class="text-xl leading-none mb-0.5 opacity-50">{{ item.icon }}</span>
+                <span 
+                  v-if="item.path.includes('/chat') && hasUnreadChat" 
+                  class="absolute -top-1 -right-1.5 bg-rose-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-black animate-pulse"
+                >1</span>
+              </div>
+              <span 
+                class="text-[9px] font-bold tracking-wide"
+                :class="isDark ? 'text-slate-500' : 'text-slate-400'"
+              >{{ item.label }}</span>
+            </template>
+          </NuxtLink>
+        </template>
+      </div>
     </nav>
 
     <!-- Floating Chat Widget (Bottom Right Corner on ALL pages) -->
@@ -53,6 +100,32 @@ const authStore = useAuthStore()
 const cartStore = useCartStore()
 const { isDark, initTheme } = useTheme()
 
+const isChatPage = computed(() => route.path.includes('/chat'))
+const api = useApi()
+const hasUnreadChat = ref(false)
+
+const checkUnreadChat = async () => {
+  if (!authStore.isAuthenticated) {
+    hasUnreadChat.value = false
+    return
+  }
+  if (isChatPage.value) {
+    hasUnreadChat.value = false
+    try {
+      await api.post('/api/chats/mark-as-read')
+    } catch (e) {}
+    return
+  }
+  try {
+    const res = await api.get('/api/chats/unread-count')
+    hasUnreadChat.value = (res.data?.unread_count || 0) > 0
+  } catch (e) {
+    hasUnreadChat.value = false
+  }
+}
+
+let navPollTimer: any = null
+
 const adminBottomNav = [
   { label: 'Kategori', path: '/admin/kategori', icon: '🏷️' },
   { label: 'Buku', path: '/admin/buku', icon: '📚' },
@@ -64,8 +137,7 @@ const adminBottomNav = [
 const userBottomNav = [
   { label: 'Katalog', path: '/user/katalog', icon: '📚' },
   { label: 'Keranjang', path: '/user/keranjang', icon: '🛒' },
-  { label: 'Riwayat', path: '/user/riwayat', icon: '📋' },
-  { label: 'Chat', path: '/user/chat', icon: '💬' },
+  { label: 'Pesanan', path: '/user/riwayat', icon: '📋' },
 ]
 
 const bottomNavItems = computed(() => {
@@ -79,6 +151,12 @@ onMounted(async () => {
   }
   if (authStore.isAuthenticated) {
     await cartStore.fetchCart()
+    checkUnreadChat()
+    navPollTimer = setInterval(checkUnreadChat, 5000)
   }
+})
+
+onUnmounted(() => {
+  if (navPollTimer) clearInterval(navPollTimer)
 })
 </script>

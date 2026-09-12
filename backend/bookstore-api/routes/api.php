@@ -57,6 +57,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     // Live Chat (HTTP Polling)
     Route::get('/admins', [ChatController::class, 'getAdmins']);
     Route::get('/chats', [ChatController::class, 'index']);
+    Route::get('/chats/unread-count', [ChatController::class, 'getUnreadCount']);
+    Route::post('/chats/mark-as-read', [ChatController::class, 'markAsRead']);
     Route::get('/chats/user/{userId}', [ChatController::class, 'getConversation']);
     Route::post('/chats', [ChatController::class, 'store']);
     Route::post('/chats/delete-for-me', [ChatController::class, 'deleteForMe']);

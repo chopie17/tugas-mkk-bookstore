@@ -30,17 +30,73 @@ class ChatController extends Controller
             ->get()
             ->map(function ($user) {
                 $lastChat = Chat::where('user_id', $user->id)->latest()->first();
+                $unread = Chat::where('user_id', $user->id)
+                    ->where('sender', 'user')
+                    ->where('is_read', false)
+                    ->count();
+
                 return [
-                    'id'           => $user->id,
-                    'name'         => $user->name,
-                    'username'     => $user->username,
-                    'foto'         => $user->foto ? asset('storage/' . $user->foto) : null,
-                    'last_message' => $lastChat ? $lastChat->pesan : '',
-                    'last_time'    => $lastChat ? $lastChat->created_at->format('H:i') : '',
+                    'id'              => $user->id,
+                    'name'            => $user->name,
+                    'username'        => $user->username,
+                    'foto'            => $user->foto ? asset('storage/' . $user->foto) : null,
+                    'last_message'    => $lastChat ? $lastChat->pesan : '',
+                    'last_message_id' => $lastChat ? $lastChat->id : 0,
+                    'last_sender'     => $lastChat ? $lastChat->sender : '',
+                    'last_time'       => $lastChat ? $lastChat->created_at->format('H:i') : '',
+                    'unread'          => $unread,
                 ];
             });
 
         return response()->json(['data' => $users]);
+    }
+
+    /**
+     * GET /api/chats/unread-count
+     * Counter pesan unread untuk floating widget & nav bottom
+     */
+    public function getUnreadCount(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->role === 'admin') {
+            $count = Chat::where('sender', 'user')
+                ->where(function ($q) {
+                    $q->where('is_read', 0)->orWhere('is_read', false)->orWhereNull('is_read');
+                })
+                ->count();
+        } else {
+            $count = Chat::where('user_id', $user->id)
+                ->where('sender', 'admin')
+                ->where(function ($q) {
+                    $q->where('is_read', 0)->orWhere('is_read', false)->orWhereNull('is_read');
+                })
+                ->count();
+        }
+
+        return response()->json(['unread_count' => (int)$count]);
+    }
+
+    /**
+     * POST /api/chats/mark-as-read
+     * Tandai semua pesan sebagai dibaca
+     */
+    public function markAsRead(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->role === 'admin') {
+            $targetUserId = $request->input('user_id');
+            $query = Chat::where('sender', 'user')->where('is_read', false);
+            if ($targetUserId) {
+                $query->where('user_id', $targetUserId);
+            }
+            $query->update(['is_read' => true]);
+        } else {
+            Chat::where('user_id', $user->id)->where('sender', 'admin')->where('is_read', false)->update(['is_read' => true]);
+        }
+
+        return response()->json(['message' => 'Pesan ditandai sebagai dibaca']);
     }
 
     // Fetch conversation for a specific user_id and optional admin_id
@@ -108,6 +164,7 @@ class ChatController extends Controller
             'admin_id' => $adminId,
             'sender'   => $sender,
             'pesan'    => $validated['pesan'],
+            'is_read'  => false,
         ]);
 
         return response()->json([

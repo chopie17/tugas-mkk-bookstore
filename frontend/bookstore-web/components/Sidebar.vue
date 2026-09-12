@@ -1,16 +1,19 @@
 <template>
   <aside 
-    :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-800 shadow-md'"
-    class="hidden md:flex w-64 min-h-screen p-5 flex-col justify-between border-r shadow-xl select-none shrink-0 transition-colors duration-300"
+    :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100 shadow-xl' : 'bg-[#FFF8EC] border-r-2.5 border-[#1A1A1A] text-slate-900 shadow-none'"
+    class="hidden md:flex w-64 h-screen sticky top-0 p-5 flex-col justify-between select-none shrink-0 transition-colors duration-300 overflow-y-auto custom-scrollbar"
   >
     <div>
       <!-- Brand Logo -->
       <NuxtLink to="/" class="flex items-center gap-3 px-2 py-3 mb-6 group">
-        <div class="w-10 h-10 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xl shadow-lg shadow-indigo-500/30 group-hover:scale-105 transition-transform">
-          <LucideBookOpen class="w-5 h-5 text-white" />
+        <div 
+          :class="isDark ? 'bg-indigo-600 text-white shadow-indigo-500/30' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'"
+          class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xl group-hover:scale-105 transition-transform"
+        >
+          <LucideBookOpen class="w-5 h-5" :class="isDark ? 'text-white' : 'text-black'" />
         </div>
-        <span class="font-black text-2xl tracking-tight font-serif" :class="isDark ? 'text-white' : 'text-slate-900'">
-          Book<span class="text-indigo-500">Store</span>
+        <span class="font-black text-2xl tracking-tight" :class="isDark ? 'text-white' : 'text-slate-900'">
+          Book<span :class="isDark ? 'text-indigo-500' : 'bg-[#C8F53F] text-black px-1.5 py-0.5 rounded-lg border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'">Store</span>
         </span>
       </NuxtLink>
 
@@ -20,55 +23,43 @@
           v-model="searchQuery" 
           type="text" 
           placeholder="Cari menu..." 
-          :class="isDark ? 'bg-slate-800/80 border-slate-700 text-white focus:bg-slate-800' : 'bg-slate-100 border-slate-300 text-slate-900 focus:bg-white'"
-          class="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl border outline-none shadow-sm transition-all focus:ring-2 focus:ring-indigo-500 font-medium"
+          :class="isDark ? 'bg-slate-800/80 border-slate-700 text-white focus:bg-slate-800' : 'bg-white border-2 border-[#1A1A1A] text-slate-900 shadow-[2.5px_2.5px_0px_#1A1A1A] placeholder-slate-500'"
+          class="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl outline-none transition-all font-bold"
         />
         <LucideSearch class="w-4 h-4 text-slate-400 absolute left-3 top-3" />
       </div>
 
       <!-- Navigation Menu -->
-      <nav class="space-y-1.5">
+      <nav class="space-y-2">
         <template v-for="item in filteredNavItems" :key="item.path">
           <NuxtLink 
             :to="item.path" 
             class="group relative flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black transition-all duration-200"
             :class="[
               isRouteActive(item.path) 
-                ? 'text-white bg-indigo-600 shadow-md shadow-indigo-600/30' 
-                : (isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800/60' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100')
+                ? (isDark ? 'text-white bg-indigo-600 shadow-md shadow-indigo-600/30' : 'text-black bg-[#C8F53F] border-2 border-[#1A1A1A] shadow-[3px_3px_0px_#1A1A1A]') 
+                : (isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800/60' : 'text-slate-700 hover:text-black hover:bg-[#FAF7F0] border-2 border-transparent hover:border-[#1A1A1A] hover:shadow-[2px_2px_0px_#1A1A1A]')
             ]"
           >
-            <component :is="item.icon" class="w-4 h-4 transition-transform group-hover:scale-110" :class="isRouteActive(item.path) ? 'text-white' : 'text-slate-400'" />
+            <component :is="item.icon" class="w-4 h-4 transition-transform group-hover:scale-110" :class="isRouteActive(item.path) ? (isDark ? 'text-white' : 'text-black') : 'text-slate-400'" />
             <span>{{ item.label }}</span>
           </NuxtLink>
 
           <!-- Divider -->
-          <div v-if="item.divider" class="my-3 border-t" :class="isDark ? 'border-slate-800' : 'border-slate-200'"></div>
+          <div v-if="item.divider" class="my-3 border-t" :class="isDark ? 'border-slate-800' : 'border-2 border-[#1A1A1A]'"></div>
         </template>
       </nav>
     </div>
 
     <!-- Bottom Actions (Chat & Logout) -->
-    <div class="space-y-1 pt-4 border-t" :class="isDark ? 'border-slate-800' : 'border-slate-200'">
-      <NuxtLink 
-        :to="chatPath" 
-        class="group relative flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black transition-all duration-200"
-        :class="[
-          isRouteActive(chatPath) 
-            ? 'text-white bg-indigo-600 shadow-md shadow-indigo-600/30' 
-            : (isDark ? 'text-slate-400 hover:text-white hover:bg-slate-800/60' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100')
-        ]"
-      >
-        <LucideMessageSquare class="w-4 h-4 text-slate-400 transition-transform group-hover:scale-110" />
-        <span>Live Chat</span>
-      </NuxtLink>
+    <div class="space-y-2 pt-4 border-t" :class="isDark ? 'border-slate-800' : 'border-t-2 border-[#1A1A1A]'">
 
       <button 
         @click="handleLogout" 
         class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-black transition-all duration-200"
-        :class="isDark ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-500/10' : 'text-slate-600 hover:text-rose-600 hover:bg-rose-50'"
+        :class="isDark ? 'text-slate-400 hover:text-rose-400 hover:bg-rose-500/10' : 'text-slate-800 bg-[#FFB7B2] border-2 border-[#1A1A1A] shadow-[2.5px_2.5px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'"
       >
-        <LucideLogOut class="w-4 h-4 text-slate-400 group-hover:text-rose-400" />
+        <LucideLogOut class="w-4 h-4" :class="isDark ? 'text-slate-400 group-hover:text-rose-400' : 'text-black'" />
         <span>Keluar / Logout</span>
       </button>
     </div>
@@ -96,6 +87,32 @@ const authStore = useAuthStore()
 const { isDark } = useTheme()
 
 const searchQuery = ref('')
+const api = useApi()
+const unreadCount = ref(0)
+let pollTimer: any = null
+
+const isChatPage = computed(() => route.path.includes('/chat'))
+
+const checkUnread = async () => {
+  if (!authStore.isAuthenticated) return
+  try {
+    const res = await api.get('/api/chats/unread-count')
+    unreadCount.value = res?.unread_count || 0
+  } catch (e) {
+    unreadCount.value = 0
+  }
+}
+
+onMounted(() => {
+  if (authStore.isAuthenticated) {
+    checkUnread()
+    pollTimer = setInterval(checkUnread, 4000)
+  }
+})
+
+onUnmounted(() => {
+  if (pollTimer) clearInterval(pollTimer)
+})
 
 const chatPath = computed(() => {
   return authStore.isAdmin ? '/admin/chat' : '/user/chat'
@@ -126,6 +143,7 @@ const filteredNavItems = computed(() => {
 })
 
 const isRouteActive = (path: string) => {
+  if (path === '/admin/kasir') return route.path === '/admin/kasir'
   return route.path === path || route.path.startsWith(path + '/')
 }
 

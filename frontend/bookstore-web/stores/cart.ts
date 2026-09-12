@@ -12,6 +12,7 @@ export interface CartItem {
 
 export const useCartStore = defineStore('cart', () => {
   const items = ref<CartItem[]>([])
+  const checkoutSelection = ref<CartItem[]>([])
   const loading = ref(false)
   const authStore = useAuthStore()
   const api = useApi()
@@ -139,9 +140,18 @@ export const useCartStore = defineStore('cart', () => {
     saveCart()
   }
 
+  const setCheckoutSelection = (selectedItems: CartItem[]) => {
+    checkoutSelection.value = selectedItems
+  }
+
+  const clearCheckoutSelection = () => {
+    checkoutSelection.value = []
+  }
+
   return {
     items,
     loading,
+    checkoutSelection,
     totalItems,
     totalPrice,
     fetchCart,
@@ -149,5 +159,7 @@ export const useCartStore = defineStore('cart', () => {
     updateQty,
     removeFromCart,
     clearCart,
+    setCheckoutSelection,
+    clearCheckoutSelection,
   }
 })

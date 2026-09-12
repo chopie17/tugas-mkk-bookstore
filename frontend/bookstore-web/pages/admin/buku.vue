@@ -1,21 +1,22 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 font-['Space_Grotesk']">
     <!-- Header -->
     <div
-      :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'"
-      class="p-5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm"
+      :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-[#FFF8EC] border-2 border-black shadow-[4px_4px_0px_#1A1A1A] text-slate-900'"
+      class="p-5 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors duration-300"
     >
       <div>
-        <h1 :class="isDark ? 'text-white' : 'text-slate-900'" class="text-2xl font-black font-serif tracking-tight">
+        <h1 :class="isDark ? 'text-white' : 'text-slate-900'" class="text-2xl font-black tracking-tight">
           Manajemen Buku
         </h1>
-        <p :class="isDark ? 'text-slate-400' : 'text-slate-500'" class="text-xs mt-1">
+        <p :class="isDark ? 'text-slate-400' : 'text-slate-700'" class="text-xs font-bold mt-1">
           Kelola koleksi buku toko. Nama buku harus unik.
         </p>
       </div>
       <button
         @click="openCreateModal"
-        class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow-md transition-all active:scale-95 whitespace-nowrap"
+        :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px]'"
+        class="px-4 py-2.5 rounded-xl text-xs font-black transition-all whitespace-nowrap"
       >
         + Tambah Buku
       </button>
@@ -23,20 +24,20 @@
 
     <!-- Books Table -->
     <div
-      :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'"
-      class="rounded-2xl border overflow-hidden shadow-sm"
+      :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-[#FFF8EC] border-2.5 border-black shadow-[4px_4px_0px_#1A1A1A]'"
+      class="rounded-2xl overflow-hidden transition-colors"
     >
-      <div v-if="loading" :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="text-center py-14 text-sm font-semibold">
+      <div v-if="loading" :class="isDark ? 'text-slate-500' : 'text-slate-700'" class="text-center py-14 text-sm font-black">
         Memuat data buku...
       </div>
-      <div v-else-if="books.length === 0" :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="text-center py-14 text-sm">
+      <div v-else-if="books.length === 0" :class="isDark ? 'text-slate-500' : 'text-slate-700'" class="text-center py-14 text-sm font-black">
         <div class="text-4xl mb-2">📚</div>
         Belum ada buku terdaftar.
       </div>
-      <div v-else class="overflow-x-auto">
+      <div v-else class="overflow-x-auto md:overflow-x-visible">
         <table class="w-full text-left text-xs">
           <thead>
-            <tr :class="isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-slate-50 text-slate-600 border-slate-200'" class="border-b font-black uppercase text-[10px] tracking-wider">
+            <tr :class="isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-[#FFE566] text-black border-b-2 border-black'" class="font-black uppercase text-[10px] tracking-wider">
               <th class="px-4 py-3">Cover</th>
               <th class="px-4 py-3">Judul Buku</th>
               <th class="px-4 py-3">Kategori</th>
@@ -48,58 +49,62 @@
               <th class="px-4 py-3 text-right">Aksi</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-black/20 font-bold">
             <tr
               v-for="book in books"
               :key="book.id"
-              :class="isDark ? 'border-slate-800 hover:bg-slate-800/50' : 'border-slate-100 hover:bg-slate-50'"
-              class="border-b last:border-b-0 transition-colors"
+              :class="isDark ? 'border-slate-800 hover:bg-slate-800/50' : 'hover:bg-white/80'"
+              class="transition-colors"
             >
               <td class="px-4 py-3">
-                <div :class="isDark ? 'bg-slate-800' : 'bg-slate-100'" class="w-10 h-12 rounded-lg overflow-hidden flex items-center justify-center shrink-0">
+                <div :class="isDark ? 'bg-slate-800' : 'bg-white border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]'" class="w-10 h-12 rounded-lg overflow-hidden flex items-center justify-center shrink-0">
                   <img v-if="book.gambar" :src="book.gambar" :alt="book.nama_buku" class="w-full h-full object-cover" />
                   <span v-else class="text-lg">📕</span>
                 </div>
               </td>
-              <td :class="isDark ? 'text-white' : 'text-slate-900'" class="px-4 py-3 font-bold max-w-[160px] truncate">
+              <td :class="isDark ? 'text-white' : 'text-slate-900'" class="px-4 py-3 font-black text-sm max-w-[160px] truncate">
                 {{ book.nama_buku }}
               </td>
-              <td class="px-4 py-3">
-                <span :class="isDark ? 'bg-indigo-900/60 text-indigo-300' : 'bg-indigo-50 text-indigo-700'" class="px-2.5 py-1 rounded-full font-semibold text-[10px]">
+              <td class="px-4 py-3 whitespace-nowrap">
+                <span :class="isDark ? 'bg-indigo-900/60 text-indigo-300' : 'bg-[#C8F53F] text-black border border-black shadow-[1px_1px_0px_#1A1A1A]'" class="px-2.5 py-1 rounded-full font-black text-[10px] whitespace-nowrap inline-block">
                   {{ book.category_name || 'Buku' }}
                 </span>
               </td>
-              <td :class="isDark ? 'text-slate-400' : 'text-slate-500'" class="px-4 py-3 whitespace-nowrap">
+              <td :class="isDark ? 'text-slate-400' : 'text-slate-700'" class="px-4 py-3 whitespace-nowrap">
                 {{ book.tanggal_terbit || '-' }}
-                <span :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="text-[10px]"> ({{ book.tahun_terbit }})</span>
+                <span :class="isDark ? 'text-slate-500' : 'text-slate-600'" class="text-[10px] font-bold"> ({{ book.tahun_terbit }})</span>
               </td>
-              <td class="px-4 py-3 font-bold" :class="book.stok > 0 ? (isDark ? 'text-slate-200' : 'text-slate-800') : 'text-rose-500'">
-                {{ book.stok }}
+              <td class="px-4 py-3 font-black">
+                <span :class="book.stok > 0 ? (isDark ? 'text-slate-200' : 'bg-[#C8F53F] text-black border border-black px-1.5 py-0.5 rounded') : 'text-rose-600 font-black'">
+                  {{ book.stok }}
+                </span>
               </td>
-              <td :class="isDark ? 'text-slate-300' : 'text-slate-600'" class="px-4 py-3 whitespace-nowrap">
+              <td :class="isDark ? 'text-slate-300' : 'text-slate-700'" class="px-4 py-3 whitespace-nowrap font-mono">
                 Rp {{ formatNumber(book.harga_modal) }}
               </td>
-              <td :class="isDark ? 'text-white' : 'text-slate-900'" class="px-4 py-3 font-bold whitespace-nowrap">
+              <td :class="isDark ? 'text-white' : 'text-slate-900'" class="px-4 py-3 font-mono font-black whitespace-nowrap">
                 Rp {{ formatNumber(book.harga_jual) }}
               </td>
-              <td class="px-4 py-3 font-bold whitespace-nowrap" :class="isDark ? 'text-emerald-400' : 'text-emerald-600'">
+              <td :class="isDark ? 'text-white' : 'text-slate-900'" class="px-4 py-3 font-mono font-black whitespace-nowrap">
                 Rp {{ formatNumber(book.keuntungan) }}
               </td>
               <td class="px-4 py-3 text-right">
-                <div class="flex items-center justify-end gap-2">
+                <div class="flex items-center justify-end gap-1.5">
                   <button
                     @click="openEditModal(book)"
-                    :class="isDark ? 'bg-amber-900/40 text-amber-400 hover:bg-amber-900/70' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'"
-                    class="px-3 py-1.5 rounded-lg font-semibold transition-colors"
+                    :class="isDark ? 'bg-amber-900/40 text-amber-400 hover:bg-amber-900/70 hover:shadow-[2px_2px_0px_#92400e]' : 'bg-[#FFE566] text-black border border-black hover:shadow-[2px_2px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px]'"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center transition-all active:translate-x-[1px] active:translate-y-[1px]"
+                    title="Edit Buku"
                   >
-                    Edit
+                    <LucidePencil class="w-3.5 h-3.5" />
                   </button>
                   <button
                     @click="deleteBook(book)"
-                    :class="isDark ? 'bg-rose-900/40 text-rose-400 hover:bg-rose-900/70' : 'bg-rose-50 text-rose-700 hover:bg-rose-100'"
-                    class="px-3 py-1.5 rounded-lg font-semibold transition-colors"
+                    :class="isDark ? 'bg-rose-900/40 text-rose-400 hover:bg-rose-900/70 hover:shadow-[2px_2px_0px_#9f1239]' : 'bg-[#FFB7B2] text-black border border-black hover:shadow-[2px_2px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px]'"
+                    class="w-8 h-8 rounded-lg flex items-center justify-center transition-all active:translate-x-[1px] active:translate-y-[1px]"
+                    title="Hapus Buku"
                   >
-                    Hapus
+                    <LucideTrash2 class="w-3.5 h-3.5" />
                   </button>
                 </div>
               </td>
@@ -264,6 +269,8 @@
 </template>
 
 <script setup lang="ts">
+import { Pencil as LucidePencil, Trash2 as LucideTrash2 } from 'lucide-vue-next'
+
 definePageMeta({
   middleware: 'admin'
 })

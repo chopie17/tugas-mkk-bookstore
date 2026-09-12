@@ -13,8 +13,10 @@ export const useTheme = () => {
     if (import.meta.client) {
       if (dark) {
         document.documentElement.classList.add('dark')
+        document.documentElement.classList.remove('retro')
       } else {
         document.documentElement.classList.remove('dark')
+        document.documentElement.classList.add('retro')
       }
     }
   }

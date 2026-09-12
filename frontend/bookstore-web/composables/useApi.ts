@@ -1,6 +1,6 @@
 export const useApi = () => {
   const config = useRuntimeConfig()
-  const tokenCookie = useCookie<string | null>('auth_token')
+  const tokenCookie = useCookie<string | null>('auth_token', { path: '/' })
   
   let apiBase = config.public.apiBase || 'http://localhost:8000'
   

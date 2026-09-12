@@ -2,8 +2,8 @@
   <div class="max-w-4xl mx-auto space-y-8">
     <!-- Header Scan / Cari Pesanan untuk User -->
     <div 
-      :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-800 text-slate-900'"
-      class="p-5 rounded-3xl border-2 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 transition-colors duration-300"
+      :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-[#FFF8EC] border-3 border-[#1A1A1A] shadow-[6px_6px_0px_#1A1A1A] text-slate-900'"
+      class="p-5 rounded-3xl flex flex-col md:flex-row items-center justify-between gap-4 transition-colors duration-300"
     >
       <div class="flex items-center gap-2 w-full md:w-auto flex-1">
         <div class="relative w-full max-w-md">
@@ -11,23 +11,24 @@
             v-model="scanQuery" 
             type="text" 
             placeholder="Scan QR Code / Masukkan Kode (A021)..." 
-            :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500 focus:bg-slate-900' : 'bg-slate-50 border-slate-800 text-slate-900 focus:bg-white'"
-            class="w-full pl-10 pr-4 py-3 rounded-full border-2 text-sm font-extrabold focus:ring-2 focus:ring-indigo-500 outline-none transition-colors"
+            :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500 focus:bg-slate-900' : 'bg-white border-2 border-[#1A1A1A] text-slate-900 shadow-[3px_3px_0px_#1A1A1A] focus:shadow-[4px_4px_0px_#1A1A1A]'"
+            class="w-full pl-10 pr-4 py-3 rounded-full text-sm font-black outline-none transition-colors"
             @keyup.enter="handleUserScanSubmit"
           />
-          <LucideQrCode class="w-5 h-5 text-indigo-500 absolute left-3.5 top-3.5" />
+          <LucideQrCode class="w-5 h-5 text-slate-900 absolute left-3.5 top-3.5" />
         </div>
         <button 
           @click="startCameraScanner" 
-          class="px-4 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full font-black text-xs border-2 border-slate-900 shadow-md flex items-center gap-1.5 whitespace-nowrap transition-transform active:scale-95"
+          :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px]'"
+          class="px-4 py-3 rounded-full font-black text-xs flex items-center gap-1.5 whitespace-nowrap transition-transform"
         >
           📷 Scan Kamera HP
         </button>
       </div>
 
       <div 
-        :class="isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-slate-100 border-slate-300 text-slate-700'"
-        class="text-xs font-black uppercase px-3.5 py-2 rounded-xl border"
+        :class="isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-[#FFE566] border-2 border-black shadow-[2px_2px_0px_#1A1A1A] text-slate-900'"
+        class="text-xs font-black uppercase px-3.5 py-2 rounded-xl"
       >
         Total: {{ orders.length }} Pesanan
       </div>
@@ -36,59 +37,59 @@
     <!-- Modal Scanner Kamera HP / Web -->
     <div v-if="showCameraModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
       <div 
-        :class="isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-white border-slate-900 text-slate-900'"
-        class="rounded-3xl p-6 max-w-md w-full shadow-2xl border-4 space-y-4 text-center relative overflow-hidden"
+        :class="isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-[#FFF8EC] border-4 border-black text-slate-900 shadow-[8px_8px_0px_#1A1A1A]'"
+        class="rounded-3xl p-6 max-w-md w-full space-y-4 text-center relative overflow-hidden"
       >
-        <div class="flex justify-between items-center border-b-2 border-slate-800 pb-3">
+        <div class="flex justify-between items-center border-b-2 border-black pb-3">
           <h3 class="font-black text-lg flex items-center gap-2">
             📷 Pemindai Kamera QR Code
           </h3>
-          <button @click="stopCameraScanner" :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-slate-100 text-slate-700'" class="text-xs font-black px-3 py-1.5 rounded-xl border border-slate-700">
+          <button @click="stopCameraScanner" :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="text-xs font-black px-3 py-1.5 rounded-xl">
             ✕ Tutup Kamera
           </button>
         </div>
 
-        <div class="relative aspect-square w-full bg-slate-950 rounded-2xl overflow-hidden border-2 border-slate-800 flex items-center justify-center">
+        <div class="relative aspect-square w-full bg-slate-950 rounded-2xl overflow-hidden border-2 border-black flex items-center justify-center">
           <video ref="videoRef" class="w-full h-full object-cover"></video>
           <canvas ref="canvasRef" class="hidden"></canvas>
-          <div class="absolute inset-0 border-4 border-dashed border-emerald-400/80 m-10 rounded-2xl pointer-events-none animate-pulse flex items-center justify-center">
-            <span class="text-white text-xs font-extrabold bg-slate-900/90 px-3 py-1 rounded-full border border-emerald-400">Arahkan QR ke Sini</span>
+          <div class="absolute inset-0 border-4 border-dashed border-[#C8F53F] m-10 rounded-2xl pointer-events-none animate-pulse flex items-center justify-center">
+            <span class="text-black text-xs font-black bg-[#C8F53F] px-3 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#1A1A1A]">Arahkan QR ke Sini</span>
           </div>
         </div>
 
-        <p class="text-xs font-extrabold" :class="isDark ? 'text-slate-400' : 'text-slate-600'">Arahkan kamera HP ke QR Code pesanan untuk memindai otomatis.</p>
+        <p class="text-xs font-black" :class="isDark ? 'text-slate-400' : 'text-slate-700'">Arahkan kamera HP ke QR Code pesanan untuk memindai otomatis.</p>
       </div>
     </div>
 
     <!-- Banner Notifikasi Scan Berhasil untuk User -->
-    <div v-if="scanSuccessBanner" class="bg-emerald-600 border-4 border-slate-900 text-white p-5 rounded-3xl shadow-lg flex items-center justify-between gap-4 animate-bounce">
+    <div v-if="scanSuccessBanner" class="bg-[#C8F53F] border-3 border-black text-black p-5 rounded-3xl shadow-[6px_6px_0px_#1A1A1A] flex items-center justify-between gap-4 animate-bounce">
       <div class="flex items-center gap-3">
         <span class="text-3xl">✅</span>
         <div>
-          <h3 class="font-black text-lg tracking-wide uppercase text-yellow-300">Scan QR Code Berhasil Terdeteksi!</h3>
-          <p class="text-xs font-bold">
-            Kode Pesanan: <span class="font-mono underline text-white font-black">{{ scanSuccessCode }}</span> ditemukan dalam Riwayat Anda. Status berhasil di-update!
+          <h3 class="font-black text-lg tracking-wide uppercase text-slate-900">Scan QR Code Berhasil Terdeteksi!</h3>
+          <p class="text-xs font-extrabold">
+            Kode Pesanan: <span class="font-mono bg-white px-2 py-0.5 rounded border border-black text-black font-black">{{ scanSuccessCode }}</span> ditemukan dalam Riwayat Anda. Status berhasil di-update!
           </p>
         </div>
       </div>
-      <button @click="scanSuccessBanner = false" class="bg-slate-900 text-white hover:bg-slate-800 font-extrabold text-xs px-3.5 py-2 rounded-xl border border-white">
+      <button @click="scanSuccessBanner = false" class="bg-black text-white hover:bg-slate-800 font-black text-xs px-3.5 py-2 rounded-xl border-2 border-black">
         ✕ Tutup Notifikasi
       </button>
     </div>
 
-    <div v-if="loading" class="text-center py-16 font-semibold" :class="isDark ? 'text-slate-400' : 'text-slate-500'">
+    <div v-if="loading" class="text-center py-16 font-black text-slate-700">
       Memuat riwayat pesanan...
     </div>
 
     <div 
       v-else-if="orders.length === 0" 
-      :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-white border-slate-300 text-slate-800'"
-      class="text-center py-16 rounded-3xl border-2 shadow-sm"
+      :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-200' : 'bg-[#FFF8EC] border-3 border-[#1A1A1A] shadow-[6px_6px_0px_#1A1A1A] text-slate-900'"
+      class="text-center py-16 rounded-3xl"
     >
       <div class="text-5xl mb-3">📦</div>
-      <h3 class="font-extrabold text-lg">Belum Ada Pesanan</h3>
-      <p class="text-xs text-slate-400 mt-1 mb-6">Anda belum melakukan pesanan buku.</p>
-      <NuxtLink to="/user/katalog" class="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-extrabold shadow-md">
+      <h3 class="font-black text-lg">Belum Ada Pesanan</h3>
+      <p class="text-xs font-bold text-slate-700 mt-1 mb-6">Anda belum melakukan pesanan buku.</p>
+      <NuxtLink to="/user/katalog" :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'" class="px-6 py-3 rounded-xl text-xs font-black inline-block">
         Mulai Belanja &rarr;
       </NuxtLink>
     </div>
@@ -98,28 +99,28 @@
         v-for="order in orders" 
         :key="order.id" 
         :id="'order-card-' + order.kode_pesanan"
-        :class="highlightedOrderCode === order.kode_pesanan ? 'ring-4 ring-emerald-500 scale-[1.01]' : ''"
+        :class="highlightedOrderCode === order.kode_pesanan ? 'ring-4 ring-[#C8F53F] scale-[1.01]' : ''"
         class="order-card space-y-4 transition-all duration-300"
       >
         <!-- Card Container matching Mockup -->
         <div 
-          :class="isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-gradient-to-r from-emerald-100 via-sky-100 to-indigo-200 border-slate-800 text-slate-900'"
-          class="border-2 rounded-3xl p-6 shadow-md relative transition-colors duration-300"
+          :class="isDark ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-[#FFF8EC] border-3 border-[#1A1A1A] shadow-[6px_6px_0px_#1A1A1A] text-slate-900'"
+          class="rounded-3xl p-6 relative transition-colors duration-300"
         >
           <!-- Card Title -->
           <div class="flex items-center justify-between mb-4">
-            <h2 class="text-2xl font-black font-serif tracking-tight" :class="isDark ? 'text-white' : 'text-slate-900'">
-              Kode Pesanan : <span class="font-mono text-indigo-400 uppercase">{{ order.kode_pesanan }}</span>
+            <h2 class="text-2xl font-black tracking-tight" :class="isDark ? 'text-white' : 'text-slate-900'">
+              Kode Pesanan : <span :class="isDark ? 'text-indigo-400' : 'bg-[#FFE566] text-black px-2 py-0.5 rounded-lg border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="font-mono uppercase">{{ order.kode_pesanan }}</span>
             </h2>
-            <span :class="getStatusBadgeClass(order.status)" class="text-xs font-black uppercase px-3 py-1 rounded-full border">
+            <span :class="getStatusBadgeClass(order.status)" class="text-xs font-black uppercase px-3.5 py-1 rounded-full border-2 border-black shadow-[2px_2px_0px_#1A1A1A]">
               {{ order.status }}
             </span>
           </div>
 
           <!-- Alert Petunjuk Pembeli -->
           <div 
-            :class="isDark ? 'bg-slate-950/80 border-slate-800 text-slate-300' : 'bg-white/80 border-slate-800 text-slate-800'"
-            class="border-2 p-3 rounded-2xl mb-4 text-xs font-bold flex items-center gap-2"
+            :class="isDark ? 'bg-slate-950/80 border-slate-800 text-slate-300' : 'bg-[#D4B8FF] border-2 border-black text-slate-900 shadow-[3px_3px_0px_#1A1A1A]'"
+            class="p-3 rounded-2xl mb-4 text-xs font-bold flex items-center gap-2"
           >
             <span class="text-lg">📢</span>
             <span>Tunjukkan QR Code di bawah kepada Kasir/Admin. Setelah di-scan & berhasil dicatat, mohon tunggu Struk / Invoice diserahkan langsung oleh Admin.</span>
@@ -128,45 +129,64 @@
           <!-- Content Grid: Table + QR Code -->
           <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
             <!-- Table Section -->
-            <div class="lg:col-span-3 overflow-x-auto">
-              <table 
-                :class="isDark ? 'bg-slate-950 border-slate-800 text-slate-200' : 'bg-white/70 border-slate-900 text-slate-900'"
-                class="w-full text-center border-collapse border-2 backdrop-blur-sm"
-              >
-                <thead>
-                  <tr :class="isDark ? 'bg-slate-800 text-slate-200 border-slate-700' : 'bg-slate-200/90 text-slate-900 border-slate-900'" class="font-black text-xs border-b-2">
-                    <th class="p-2 border-r-2 border-slate-700">Judul Buku</th>
-                    <th class="p-2 border-r-2 border-slate-700">Tanggal Pembelian</th>
-                    <th class="p-2 border-r-2 border-slate-700">Jumlah Pesanan</th>
-                    <th class="p-2 border-r-2 border-slate-700">Harga Satuan</th>
-                    <th class="p-2">Total Harga</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y-2 divide-slate-800 text-xs font-bold">
-                  <tr v-for="detail in (order.details || order.items || [])" :key="detail.id">
-                    <td class="p-2.5 border-r-2 border-slate-800 text-left px-4 font-extrabold">{{ detail.buku?.judul || detail.nama_buku }}</td>
-                    <td class="p-2.5 border-r-2 border-slate-800">{{ formatDate(order.created_at) }}</td>
-                    <td class="p-2.5 border-r-2 border-slate-800 font-extrabold">{{ detail.qty }}</td>
-                    <td class="p-2.5 border-r-2 border-slate-800">Rp.{{ formatPrice(detail.harga_satuan) }}</td>
-                    <td class="p-2.5 font-extrabold">Rp.{{ formatPrice(detail.subtotal) }}</td>
-                  </tr>
-                  <!-- Total Summary Row -->
-                  <tr :class="isDark ? 'bg-slate-800 border-slate-700 text-white' : 'bg-slate-200/90 border-slate-900 text-slate-900'" class="font-black text-sm border-t-2">
-                    <td colspan="5" class="p-3 text-center">
-                      Total Harga : Rp. {{ formatPrice(order.total_harga) }}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+            <!-- List Section (retro style, responsive) -->
+            <div class="lg:col-span-3">
+              <!-- Header - hidden on mobile -->
+              <div
+                :class="isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-[#FFE566] text-black border-2 border-black'"
+                class="hidden sm:grid grid-cols-[2fr_1fr_0.6fr_1fr_1fr] gap-2 text-xs font-black uppercase rounded-t-2xl py-3 px-4">
+                <span>Judul Buku</span>
+                <span class="text-center">Tanggal</span>
+                <span class="text-right">Jumlah</span>
+                <span class="text-right">Harga Satuan</span>
+                <span class="text-right">Total</span>
+              </div>
+
+              <div
+                :class="isDark ? 'bg-slate-950 border-slate-700' : 'bg-white border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'"
+                class="divide-y-2 divide-black rounded-2xl sm:rounded-t-none overflow-hidden">
+                <div v-for="detail in (order.details || order.items || [])" :key="detail.id"
+                  :class="isDark ? 'hover:bg-slate-900/60' : 'hover:bg-[#FFF8EC]'"
+                  class="grid grid-cols-2 sm:grid-cols-[2fr_1fr_0.6fr_1fr_1fr] gap-x-2 gap-y-1.5 p-4 transition-colors text-xs font-bold">
+
+                  <span class="col-span-2 sm:col-span-1 font-black">
+                    {{ detail.buku?.judul || detail.nama_buku }}
+                  </span>
+
+                  <span class="sm:text-center">
+                    <span class="sm:hidden text-slate-500 font-black">Tanggal: </span>{{ formatDate(order.created_at) }}
+                  </span>
+
+                  <span class="sm:text-right font-black">
+                    <span class="sm:hidden text-slate-500">Jumlah: </span>{{ detail.qty }}
+                  </span>
+
+                  <span class="sm:text-right">
+                    <span class="sm:hidden text-slate-500 font-black">Harga: </span>Rp {{
+                      formatPrice(detail.harga_satuan) }}
+                  </span>
+
+                  <span class="sm:text-right font-black">
+                    <span class="sm:hidden text-slate-500">Total: </span>Rp {{ formatPrice(detail.subtotal) }}
+                  </span>
+                </div>
+
+                <!-- Total row -->
+                <div
+                  :class="isDark ? 'bg-slate-800 text-white border-slate-700' : 'bg-[#C8F53F] text-black border-black'"
+                  class="flex justify-between items-center border-t-2 p-4">
+                  <span class="text-sm font-black uppercase">Total Harga</span>
+                  <span class="text-base font-black">Rp {{ formatPrice(order.total_harga) }}</span>
+                </div>
+              </div>
             </div>
 
             <!-- QR Code Section -->
-            <div 
-              :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-white/80 border-slate-900'"
-              class="lg:col-span-1 flex flex-col items-center justify-center p-2 rounded-2xl border-2 shadow-sm"
-            >
+            <div
+              :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-white border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'"
+              class="lg:col-span-1 flex flex-col items-center justify-center p-2 rounded-2xl">
               <QrCodeDisplay :value="order.kode_pesanan" :size="150" show-label />
-              <p class="text-[10px] text-slate-400 font-bold text-center mt-1">
+              <p class="text-[10px] text-slate-900 font-black text-center mt-1">
                 Tunjukkan QR ke Kasir
               </p>
             </div>
@@ -177,8 +197,8 @@
         <div class="flex gap-3 print:hidden">
           <button 
             @click="printReceipt" 
-            :class="isDark ? 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700' : 'bg-gradient-to-r from-emerald-200 via-sky-200 to-indigo-200 text-slate-900 border-slate-800'"
-            class="flex-1 border-2 font-black text-base py-3 rounded-2xl shadow-md transition-transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2"
+            :class="isDark ? 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'"
+            class="flex-1 font-black text-sm py-3 rounded-2xl transition-transform flex items-center justify-center gap-2"
           >
             <LucidePrinter class="w-5 h-5" />
             <span>Print Struk</span>
@@ -186,7 +206,8 @@
           
           <button 
             @click="downloadInvoicePdf(order.id)" 
-            class="flex-1 bg-indigo-600 hover:bg-indigo-700 border-2 border-slate-800 text-white font-black text-base py-3 rounded-2xl shadow-md transition-transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2"
+            :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#D4B8FF] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'"
+            class="flex-1 font-black text-sm py-3 rounded-2xl transition-transform flex items-center justify-center gap-2"
           >
             <LucideFileText class="w-5 h-5" />
             <span>Unduh Invoice PDF</span>
@@ -245,13 +266,13 @@ const getStatusBadgeClass = (status: string) => {
   }
   switch (status) {
     case 'pending':
-      return 'bg-amber-200 text-amber-950 border-amber-400'
+      return 'bg-[#FFE566] text-black border-black shadow-[2px_2px_0px_#1A1A1A]'
     case 'confirmed':
-      return 'bg-sky-200 text-sky-950 border-sky-400'
+      return 'bg-[#D4B8FF] text-black border-black shadow-[2px_2px_0px_#1A1A1A]'
     case 'completed':
-      return 'bg-emerald-200 text-emerald-950 border-emerald-400'
+      return 'bg-[#C8F53F] text-black border-black shadow-[2px_2px_0px_#1A1A1A]'
     default:
-      return 'bg-slate-200 text-slate-900 border-slate-400'
+      return 'bg-[#FFF8EC] text-black border-black shadow-[2px_2px_0px_#1A1A1A]'
   }
 }
 

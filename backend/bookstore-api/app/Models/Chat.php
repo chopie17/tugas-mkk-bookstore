@@ -16,6 +16,11 @@ class Chat extends Model
         'admin_id',
         'sender',
         'pesan',
+        'is_read',
+    ];
+
+    protected $casts = [
+        'is_read' => 'boolean',
     ];
 
     public function user(): BelongsTo

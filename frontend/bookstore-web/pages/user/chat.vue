@@ -1,6 +1,6 @@
 <template>
   <!-- Full Screen Edge-to-Edge Container -->
-  <div class="-m-4 sm:-m-6 h-[calc(100vh-5.5rem)] md:h-[calc(100vh-4.5rem)] flex flex-col overflow-hidden transition-colors duration-300">
+  <div class="h-full flex flex-col overflow-hidden transition-colors duration-300">
     <div 
       :class="isDark ? 'bg-slate-950 text-slate-100' : 'bg-white text-slate-800'"
       class="flex-1 flex overflow-hidden relative"
@@ -64,7 +64,9 @@
                 <img v-if="admin.foto" :src="admin.foto" :alt="admin.name" class="w-full h-full object-cover rounded-2xl" />
                 <span v-else>{{ admin.name.charAt(0).toUpperCase() }}</span>
               </div>
-              <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-900 shadow-sm"></span>
+              <span class="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-white shadow-sm"
+                :style="isDark ? 'border-color: #0f172a' : 'border-color: #f8fafc'"
+              ></span>
             </div>
 
             <div v-if="!isCollapsed" class="min-w-0 flex-1 text-left">
@@ -92,7 +94,7 @@
 
           <!-- Chat Header -->
           <div 
-            :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-slate-900 text-white'"
+            :class="isDark ? 'bg-slate-950 border-slate-800 text-white' : 'bg-[#FFF8EC] border-[#1A1A1A] text-slate-900'"
             class="p-4 border-b flex items-center justify-between shrink-0 shadow-sm"
           >
             <div class="flex items-center gap-3">
@@ -101,12 +103,12 @@
                 <span v-else>{{ selectedAdmin.name.charAt(0).toUpperCase() }}</span>
               </div>
               <div>
-                <h4 class="font-extrabold text-sm text-white leading-tight">{{ selectedAdmin.name }}</h4>
-                <div class="flex items-center gap-2 text-[10px] text-slate-300">
-                  <span class="text-indigo-400 font-bold">{{ selectedAdmin.role_title }}</span>
+                <h4 :class="isDark ? 'text-white' : 'text-slate-900'" class="font-extrabold text-sm leading-tight">{{ selectedAdmin.name }}</h4>
+                <div class="flex items-center gap-2 text-[10px]" :class="isDark ? 'text-slate-300' : 'text-slate-600'">
+                  <span :class="isDark ? 'text-indigo-400' : 'text-indigo-600'" class="font-bold">{{ selectedAdmin.role_title }}</span>
                   <span>•</span>
-                  <span class="text-emerald-400 font-bold flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Online
+                  <span class="text-emerald-500 font-bold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span> Live Online
                   </span>
                 </div>
               </div>
@@ -132,7 +134,8 @@
 
               <button 
                 v-if="isCollapsed" @click="isCollapsed = false"
-                class="text-xs font-bold px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
+                :class="isDark ? 'bg-slate-800 hover:bg-slate-700 text-slate-300' : 'bg-[#FFE566] hover:bg-[#ffd93f] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'"
+                class="text-xs font-bold px-3 py-1.5 rounded-xl transition-colors"
               >
                 👥 Ganti Admin
               </button>
@@ -147,7 +150,7 @@
               class="px-4 py-2 border-b text-[11px] font-semibold flex items-center gap-2"
             >
               <span>✅</span>
-              <span>Mode seleksi aktif — klik bubble untuk pilih/batal. Tekan <strong>Batal</strong> untuk keluar.</span>
+              <span>Mode seleksi aktif — ketuk bubble untuk pilih/batal. Tekan <strong>Batal</strong> untuk keluar.</span>
             </div>
           </transition>
 
@@ -171,7 +174,10 @@
               class="flex items-end gap-2.5 group/msg"
             >
               <!-- Admin Avatar -->
-              <div v-if="chat.sender === 'admin'" class="w-7 h-7 rounded-full bg-indigo-600 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">A</div>
+              <div v-if="chat.sender === 'admin'" 
+                :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]'"
+                class="w-7 h-7 rounded-full font-black text-xs flex items-center justify-center shrink-0 shadow-sm"
+              >A</div>
 
               <!-- Bubble + delete icon wrapper -->
               <div :class="chat.sender === 'user' ? 'flex-row-reverse' : 'flex-row'" class="flex items-end gap-1.5 max-w-xs sm:max-w-md relative">
@@ -185,14 +191,24 @@
                 >🗑️</button>
 
                 <!-- Bubble -->
+                <!-- Long press 500ms → masuk select mode. Klik biasa hanya toggle jika sudah di select mode -->
                 <div 
-                  @click.stop="toggleSelect(chat)"
+                  @mousedown="startLongPress(chat)"
+                  @mouseup="cancelLongPress"
+                  @mouseleave="cancelLongPress"
+                  @touchstart.prevent="startLongPress(chat)"
+                  @touchend="cancelLongPress"
+                  @touchcancel="cancelLongPress"
+                  @click.stop="onBubbleClick(chat)"
                   :class="[
                     chat.sender === 'user' 
                       ? 'bg-indigo-600 text-white rounded-t-2xl rounded-l-2xl shadow-md shadow-indigo-600/20' 
-                      : (isDark ? 'bg-slate-800 text-slate-100 border border-slate-700 rounded-t-2xl rounded-r-2xl' : 'bg-white text-slate-900 border border-slate-200 rounded-t-2xl rounded-r-2xl'),
+                      : (isDark 
+                          ? 'bg-slate-800 text-slate-100 border border-slate-700 rounded-t-2xl rounded-r-2xl' 
+                          : 'bg-[#FFF8EC] text-slate-900 border-2 border-black shadow-[2px_2px_0px_#1A1A1A] rounded-t-2xl rounded-r-2xl'),
                     selectedIds.has(chat.id) ? 'ring-2 ring-offset-1 ring-red-500 opacity-80 scale-[0.98]' : '',
-                    'cursor-pointer select-none transition-all duration-150'
+                    selectedIds.size > 0 ? 'cursor-pointer' : 'cursor-default',
+                    'select-none transition-all duration-150'
                   ]"
                   class="p-3.5 text-xs space-y-1 shadow-sm"
                 >
@@ -209,28 +225,32 @@
               </div>
 
               <!-- User Avatar -->
-              <div v-if="chat.sender === 'user'" class="w-7 h-7 rounded-full bg-slate-700 text-white font-black text-xs flex items-center justify-center shrink-0 shadow-sm">Me</div>
+              <div v-if="chat.sender === 'user'" 
+                :class="isDark ? 'bg-slate-700 text-white' : 'bg-[#D4B8FF] text-black border-2 border-black shadow-[1.5px_1.5px_0px_#1A1A1A]'"
+                class="w-7 h-7 rounded-full font-black text-xs flex items-center justify-center shrink-0 shadow-sm"
+              >Me</div>
             </div>
           </div>
 
-          <!-- Message Input Form -->
+          <!-- Message Input Form - FIXED at bottom -->
           <form 
             @submit.prevent="sendMessage" 
-            :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'"
-            class="p-3.5 border-t flex items-center gap-2.5 shrink-0"
+            :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-[#FFF8EC] border-[#1A1A1A] border-t-2'"
+            class="p-3.5 border-t flex items-center gap-2.5 shrink-0 relative z-10"
           >
             <input 
               v-model="pesanInput" type="text" 
               :placeholder="`Tulis pesan untuk ${selectedAdmin.name}...`" 
               required 
-              :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-slate-50 border-slate-300 text-slate-900'"
-              class="flex-grow px-4 py-3 text-xs rounded-2xl border focus:ring-2 focus:ring-indigo-500 outline-none font-medium" 
+              :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-2 border-black text-slate-900 placeholder-slate-400 shadow-[2px_2px_0px_#1A1A1A]'"
+              class="flex-grow px-4 py-3 text-xs rounded-2xl border focus:outline-none font-medium" 
             />
             <button 
               type="submit" :disabled="sending" 
-              class="px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow-md shadow-indigo-500/20 transition-all shrink-0 disabled:opacity-50 flex items-center gap-1.5"
+              :class="isDark ? 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/20' : 'bg-[#C8F53F] hover:bg-[#b8e82f] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px]'"
+              class="px-5 py-3 rounded-2xl text-xs font-black shadow-md transition-all shrink-0 disabled:opacity-50 flex items-center gap-1.5"
             >
-              <span>Kirim</span><span>🚀</span>
+              <span :class="isDark ? 'text-white' : 'text-black'">Kirim</span><span>🚀</span>
             </button>
           </form>
         </template>
@@ -334,8 +354,49 @@ const sending = ref(false)
 const chatContainer = ref<HTMLElement | null>(null)
 let pollTimer: any = null
 
-// ── Selection ────────────────────────────────────────────────────
+// ── Selection & Long Press ────────────────────────────────────────
 const selectedIds = ref<Set<number>>(new Set())
+let longPressTimer: ReturnType<typeof setTimeout> | null = null
+let longPressTriggered = false
+
+/**
+ * Start 500ms long press timer — entering select mode on hold
+ */
+const startLongPress = (chat: any) => {
+  longPressTriggered = false
+  longPressTimer = setTimeout(() => {
+    longPressTriggered = true
+    // Vibrate on mobile if supported
+    if (navigator.vibrate) navigator.vibrate(60)
+    // Enter select mode with this message pre-selected
+    const next = new Set(selectedIds.value)
+    next.add(chat.id)
+    selectedIds.value = next
+  }, 500)
+}
+
+const cancelLongPress = () => {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer)
+    longPressTimer = null
+  }
+}
+
+/**
+ * On normal click/tap:
+ * - If already in select mode → toggle this bubble
+ * - If not in select mode → do nothing (long press needed)
+ */
+const onBubbleClick = (chat: any) => {
+  if (longPressTriggered) {
+    longPressTriggered = false
+    return // already handled in long press
+  }
+  if (selectedIds.value.size > 0) {
+    toggleSelect(chat)
+  }
+  // else: normal click, do nothing
+}
 
 const toggleSelect = (chat: any) => {
   const next = new Set(selectedIds.value)
@@ -509,9 +570,18 @@ const fetchChats = async () => {
       params: { admin_id: selectedAdmin.value.id }
     })
     chats.value = res.data || []
+    if (chats.value.length > 0) {
+      try {
+        await api.post('/api/chats/mark-as-read')
+      } catch (err) {}
+    }
     scrollToBottom()
-  } catch (e) {
-    console.error('Failed to fetch chats:', e)
+  } catch (e: any) {
+    if (e.status === 401 || e.statusCode === 401 || e.response?.status === 401) {
+      if (pollTimer) clearInterval(pollTimer)
+    } else {
+      console.error('Failed to fetch chats:', e)
+    }
   } finally {
     loadingChats.value = false
   }

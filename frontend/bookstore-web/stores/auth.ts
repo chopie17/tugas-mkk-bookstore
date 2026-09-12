@@ -34,7 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const login = async (credentials: { login: string; password: string }) => {
     const api = useApi()
-    const tokenCookie = useCookie<string | null>('auth_token')
+    const tokenCookie = useCookie<string | null>('auth_token', { maxAge: 60 * 60 * 24 * 7, sameSite: 'lax', path: '/' })
     const res = await api.post<{ message: string; token: string; user: User }>('/api/login', credentials)
     if (res.token) {
       tokenCookie.value = res.token
@@ -48,7 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const register = async (formData: FormData) => {
     const api = useApi()
-    const tokenCookie = useCookie<string | null>('auth_token')
+    const tokenCookie = useCookie<string | null>('auth_token', { maxAge: 60 * 60 * 24 * 7, sameSite: 'lax', path: '/' })
     const res = await api.post<{ message: string; token: string; user: User }>('/api/register', formData)
     if (res.token) {
       tokenCookie.value = res.token
@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const logout = async () => {
     const api = useApi()
-    const tokenCookie = useCookie<string | null>('auth_token')
+    const tokenCookie = useCookie<string | null>('auth_token', { path: '/' })
     try {
       await api.post('/api/logout')
     } catch (e) {
