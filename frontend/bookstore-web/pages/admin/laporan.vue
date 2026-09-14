@@ -142,7 +142,15 @@
     </div>
 
     <!-- Download Button -->
-    <div class="flex justify-end">
+    <div class="flex justify-end gap-3">
+      <a 
+        :href="excelExportUrl" 
+        target="_blank"
+        :class="isDark ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-[#10b981] text-white border-2 border-black shadow-[4px_4px_0px_#1A1A1A] hover:translate-x-[-2px] hover:translate-y-[-2px] active:translate-x-[2px] active:translate-y-[2px]'"
+        class="px-8 py-3 rounded-2xl font-black text-sm flex items-center gap-2 transition-transform"
+      >
+        📊 Download Excel
+      </a>
       <a 
         :href="pdfExportUrl" 
         target="_blank"
@@ -178,6 +186,17 @@ const formatPrice = (val: number) => {
 
 const pdfExportUrl = computed(() => {
   let url = `${api.apiBase}/api/admin/reports/export-pdf`
+  if (filterYear.value) {
+    const year = filterYear.value
+    const startDate = `${year}-01-01`
+    const endDate = `${year}-12-31`
+    url += `?start_date=${startDate}&end_date=${endDate}`
+  }
+  return url
+})
+
+const excelExportUrl = computed(() => {
+  let url = `${api.apiBase}/api/admin/reports/export-excel`
   if (filterYear.value) {
     const year = filterYear.value
     const startDate = `${year}-01-01`

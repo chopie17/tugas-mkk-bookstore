@@ -38,6 +38,7 @@ Route::get('/books/{book}/reviews', [ReviewController::class, 'indexByBook']);
 // Invoice & Report PDF Download Routes (Accessible via Direct Link)
 Route::get('/orders/{order}/invoice-pdf', [OrderController::class, 'invoicePdf']);
 Route::get('/admin/reports/export-pdf', [ReportController::class, 'exportPdf']);
+Route::get('/admin/reports/export-excel', [ReportController::class, 'exportExcel']);
 
 // Authenticated Routes (Sanctum SPA & Bearer Token)
 Route::middleware(['auth:sanctum'])->group(function () {

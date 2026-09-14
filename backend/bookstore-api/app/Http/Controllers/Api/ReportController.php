@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderDetail;
@@ -9,6 +10,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
@@ -100,5 +102,35 @@ class ReportController extends Controller
 
         $pdf = Pdf::loadView('pdf.report', compact('orders', 'totalOmset', 'totalKeuntungan', 'startDate', 'endDate'));
         return $pdf->download('Laporan-Penjualan.pdf');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $startDate = $request->query('start_date');
+        $endDate = $request->query('end_date');
+
+        $orderQuery = Order::with(['user', 'orderDetails.book'])->where('status', 'completed');
+
+        if ($startDate) {
+            $orderQuery->whereDate('created_at', '>=', $startDate);
+        }
+        if ($endDate) {
+            $orderQuery->whereDate('created_at', '<=', $endDate);
+        }
+
+        $orders = $orderQuery->orderBy('created_at', 'desc')->get();
+        $totalOmset = $orders->sum('total_harga');
+        $totalKeuntungan = 0;
+
+        foreach ($orders as $order) {
+            foreach ($order->orderDetails as $detail) {
+                if ($detail->book) {
+                    $totalKeuntungan += ((float) $detail->book->keuntungan * $detail->qty);
+                }
+            }
+        }
+
+        $fileName = 'Laporan-Penjualan-' . now()->format('Y-m-d-H-i-s') . '.xlsx';
+        return Excel::download(new ReportExport($orders, $startDate, $endDate, $totalOmset, $totalKeuntungan), $fileName);
     }
 }
