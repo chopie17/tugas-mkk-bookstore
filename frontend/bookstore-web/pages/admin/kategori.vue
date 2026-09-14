@@ -216,10 +216,13 @@ const saveCategory = async () => {
 const deleteCategory = async (cat: any) => {
   if (!confirm(`Yakin ingin menghapus kategori '${cat.nama_kategori}'?`)) return
   try {
+    const toast = useToast()
     await api.delete(`/api/admin/categories/${cat.id}`)
+    toast.success('Kategori berhasil dihapus!')
     await fetchCategories()
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal menghapus kategori')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal menghapus kategori')
   }
 }
 

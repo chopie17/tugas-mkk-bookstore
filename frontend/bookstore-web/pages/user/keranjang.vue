@@ -154,9 +154,11 @@ const selectedTotalPrice = computed(() =>
 
 const updateQty = async (bookId: number, qty: number) => {
   try {
+    const toast = useToast()
     await cartStore.updateQty(bookId, qty)
   } catch (err: any) {
-    alert(err.message || 'Stok tidak mencukupi')
+    const toast = useToast()
+    toast.error(err.message || 'Stok tidak mencukupi')
   }
 }
 

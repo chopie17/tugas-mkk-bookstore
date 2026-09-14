@@ -201,11 +201,14 @@ const saveUser = async () => {
   submitting.value = true
 
   try {
+    const toast = useToast()
     await api.put(`/api/admin/users/${editUserObj.value.id}`, form)
+    toast.success('Peran pengguna berhasil diubah!')
     showModal.value = false
     await fetchUsers()
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal mengubah peran pengguna')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal mengubah peran pengguna')
   } finally {
     submitting.value = false
   }
@@ -214,10 +217,13 @@ const saveUser = async () => {
 const deleteUser = async (u: any) => {
   if (!confirm(`Yakin menghapus pengguna '${u.name}'?`)) return
   try {
+    const toast = useToast()
     await api.delete(`/api/admin/users/${u.id}`)
+    toast.success('Pengguna berhasil dihapus!')
     await fetchUsers()
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal menghapus pengguna')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal menghapus pengguna')
   }
 }
 

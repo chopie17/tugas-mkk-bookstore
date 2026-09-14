@@ -197,7 +197,7 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-black/20 font-bold">
-            <tr v-for="order in filteredOrders" :key="order.id" :class="isDark ? 'hover:bg-slate-800/60' : 'hover:bg-white/80'" class="transition-colors">
+            <tr v-for="order in paginatedOrders" :key="order.id" :class="isDark ? 'hover:bg-slate-800/60' : 'hover:bg-white/80'" class="transition-colors">
               <td class="px-4 py-3 font-mono font-black text-slate-900 uppercase">
                 <span class="bg-white border border-black px-1.5 py-0.5 rounded shadow-[1px_1px_0px_#1A1A1A]">{{ order.kode_pesanan }}</span>
               </td>
@@ -211,12 +211,72 @@
               </td>
               <td class="px-4 py-3 text-right">
                 <button @click="selectOrder(order)" :class="isDark ? 'bg-slate-800 text-indigo-300' : 'bg-[#C8F53F] hover:bg-[#b8e82f] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="px-3 py-1.5 rounded-xl font-black text-xs transition-all active:translate-x-[1px] active:translate-y-[1px]">
-                  👁️ Detail Struk
+                  Detail Struk
                 </button>
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <div v-if="totalPages > 1" class="p-4 border-t" :class="isDark ? 'border-slate-800' : 'border-black'">
+        <div class="flex items-center justify-center gap-2 flex-wrap">
+          <button 
+            @click="currentPage = 1"
+            :disabled="currentPage === 1"
+            :class="isDark ? 'bg-slate-800 text-slate-300 disabled:opacity-50' : 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
+            class="px-3 py-2 rounded-lg font-black text-xs transition-all"
+          >
+            « Awal
+          </button>
+
+          <button 
+            @click="currentPage--"
+            :disabled="currentPage === 1"
+            :class="isDark ? 'bg-slate-800 text-slate-300 disabled:opacity-50' : 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
+            class="px-3 py-2 rounded-lg font-black text-xs transition-all"
+          >
+            ‹ Sebelumnya
+          </button>
+
+          <div class="flex items-center gap-1">
+            <button 
+              v-for="page in totalPages"
+              :key="page"
+              @click="currentPage = page"
+              :class="currentPage === page
+                ? (isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]')
+                : (isDark ? 'bg-slate-800 text-slate-300' : 'bg-white text-black border border-black')
+              "
+              class="w-8 h-8 rounded-lg font-black text-xs transition-all flex items-center justify-center"
+            >
+              {{ page }}
+            </button>
+          </div>
+
+          <button 
+            @click="currentPage++"
+            :disabled="currentPage === totalPages"
+            :class="isDark ? 'bg-slate-800 text-slate-300 disabled:opacity-50' : 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
+            class="px-3 py-2 rounded-lg font-black text-xs transition-all"
+          >
+            Berikutnya ›
+          </button>
+
+          <button 
+            @click="currentPage = totalPages"
+            :disabled="currentPage === totalPages"
+            :class="isDark ? 'bg-slate-800 text-slate-300 disabled:opacity-50' : 'bg-[#FFE566] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
+            class="px-3 py-2 rounded-lg font-black text-xs transition-all"
+          >
+            Akhir »
+          </button>
+
+          <span :class="isDark ? 'text-slate-400' : 'text-slate-700'" class="text-xs font-bold ml-2">
+            Hal {{ currentPage }} dari {{ totalPages }}
+          </span>
+        </div>
       </div>
     </div>
 
@@ -234,35 +294,74 @@
         </div>
 
         <form @submit.prevent="processPayment" class="space-y-4">
-          <div>
-            <label class="block text-xs font-black mb-1" :class="isDark ? 'text-slate-300' : 'text-slate-900'">Nominal Uang Tunai / Cash (Rp)</label>
-            <input 
-              v-model.number="cashInput" 
-              type="number" 
-              required 
-              :min="activePayOrder?.total_harga" 
-              :class="isDark ? 'bg-slate-950 border-slate-700 text-white' : 'bg-white border-2 border-black text-slate-900 shadow-[2px_2px_0px_#1A1A1A]'"
-              class="w-full px-4 py-3 text-base font-black rounded-xl outline-none" 
-              placeholder="100000" 
-            />
-          </div>
+  <div>
+    <label class="block text-xs font-black mb-2" :class="isDark ? 'text-slate-300' : 'text-slate-900'">
+      Pilih Nominal Uang Tunai
+    </label>
 
-          <div :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-[#C8F53F] border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="p-3.5 rounded-xl flex justify-between items-center text-xs">
-            <span class="font-black">Uang Kembalian:</span>
-            <span :class="computedKembalian >= 0 ? 'text-black font-black text-base' : 'text-rose-600 font-black'">
-              Rp. {{ formatPrice(computedKembalian) }}
-            </span>
-          </div>
+    <!-- Quick-select denomination buttons -->
+    <div class="grid grid-cols-4 gap-2 mb-3">
+      <button
+        v-for="d in denominations"
+        :key="d"
+        type="button"
+        @click="addCash(d)"
+        :class="isDark ? 'bg-slate-800 text-slate-200 hover:bg-slate-700' : 'bg-white text-slate-900 border-2 border-black shadow-[2px_2px_0px_#1A1A1A] hover:bg-[#FFE566] active:translate-x-[1px] active:translate-y-[1px]'"
+        class="py-2 rounded-xl font-black text-[11px] transition-all"
+      >
+        +{{ formatShort(d) }}
+      </button>
+    </div>
 
-          <div class="flex justify-end gap-3 pt-2">
-            <button type="button" @click="showPayModal = false" :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="px-4 py-2 text-xs font-black rounded-xl">
-              Batal
-            </button>
-            <button type="submit" :disabled="submittingPay || computedKembalian < 0" class="px-5 py-2.5 text-xs font-black text-black bg-[#C8F53F] hover:bg-[#b8e82f] border-2 border-black rounded-xl shadow-[3px_3px_0px_#1A1A1A] transition-all disabled:opacity-50">
-              Selesaikan Pembayaran & Lunas
-            </button>
-          </div>
-        </form>
+    <div class="flex gap-2 mb-3">
+      <button
+        type="button"
+        @click="setExactCash"
+        :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'"
+        class="flex-1 py-2 rounded-xl font-black text-[11px] transition-all"
+      >
+        💵 Uang Pas
+      </button>
+      <button
+        type="button"
+        @click="resetCash"
+        :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'"
+        class="flex-1 py-2 rounded-xl font-black text-[11px] transition-all"
+      >
+        ↺ Reset
+      </button>
+    </div>
+
+    <label class="block text-xs font-black mb-1" :class="isDark ? 'text-slate-300' : 'text-slate-900'">
+      Atau Ketik Manual (Rp)
+    </label>
+    <input 
+      v-model.number="cashInput" 
+      type="number" 
+      required 
+      :min="activePayOrder?.total_harga" 
+      :class="isDark ? 'bg-slate-950 border-slate-700 text-white' : 'bg-white border-2 border-black text-slate-900 shadow-[2px_2px_0px_#1A1A1A]'"
+      class="w-full px-4 py-3 text-base font-black rounded-xl outline-none" 
+      placeholder="100000" 
+    />
+  </div>
+
+  <div :class="isDark ? 'bg-slate-950 border-slate-800' : 'bg-[#C8F53F] border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="p-3.5 rounded-xl flex justify-between items-center text-xs">
+    <span class="font-black">Uang Kembalian:</span>
+    <span :class="computedKembalian >= 0 ? 'text-black font-black text-base' : 'text-rose-600 font-black'">
+      Rp. {{ formatPrice(computedKembalian) }}
+    </span>
+  </div>
+
+  <div class="flex justify-end gap-3 pt-2">
+    <button type="button" @click="showPayModal = false" :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="px-4 py-2 text-xs font-black rounded-xl">
+      Batal
+    </button>
+    <button type="submit" :disabled="submittingPay || computedKembalian < 0" class="px-5 py-2.5 text-xs font-black text-black bg-[#C8F53F] hover:bg-[#b8e82f] border-2 border-black rounded-xl shadow-[3px_3px_0px_#1A1A1A] transition-all disabled:opacity-50">
+      Selesaikan Pembayaran & Lunas
+    </button>
+  </div>
+</form>
       </div>
     </div>
   </div>
@@ -280,6 +379,8 @@ const api = useApi()
 const orders = ref<any[]>([])
 const loading = ref(true)
 const filterStatus = ref('')
+const currentPage = ref(1)
+const itemsPerPage = 6
 
 const scanQuery = ref('')
 const selectedOrder = ref<any>(null)
@@ -291,6 +392,24 @@ const scanSuccessCode = ref('')
 const showPayModal = ref(false)
 const activePayOrder = ref<any>(null)
 const cashInput = ref<number | ''>('')
+const denominations = [1000, 2000, 5000, 10000, 20000, 50000, 100000]
+
+const formatShort = (val: number) => {
+  if (val >= 1000) return `${val / 1000}rb`
+  return `${val}`
+}
+
+const addCash = (amount: number) => {
+  cashInput.value = (Number(cashInput.value) || 0) + amount
+}
+
+const setExactCash = () => {
+  cashInput.value = activePayOrder.value?.total_harga || 0
+}
+
+const resetCash = () => {
+  cashInput.value = 0
+}
 const submittingPay = ref(false)
 
 // Camera scanner state
@@ -332,6 +451,16 @@ const getStatusBadgeClass = (status: string) => {
 const filteredOrders = computed(() => {
   if (!filterStatus.value) return orders.value
   return orders.value.filter(o => o.status === filterStatus.value)
+})
+
+const paginatedOrders = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage
+  const end = start + itemsPerPage
+  return filteredOrders.value.slice(start, end)
+})
+
+const totalPages = computed(() => {
+  return Math.ceil(filteredOrders.value.length / itemsPerPage)
 })
 
 const computedKembalian = computed(() => {
@@ -386,11 +515,13 @@ const handleScanSubmit = async () => {
       }
     }
 
-    // Alert notification for Admin
-    alert(`✅ Scan Berhasil & Tersimpan di Database!\n\nKode Pesanan: ${matched.kode_pesanan}\nPelanggan: ${matched.user_name || matched.pelanggan || 'User'}\nStatus DB: ${matched.status.toUpperCase()}\nTotal: Rp. ${formatPrice(matched.total_harga)}\n\nStatus pesanan otomatis diperbarui di Database ke 'CONFIRMED'. Silakan selesaikan pembayaran & berikan Struk/Invoice kepada pelanggan.`)
+    // Toast notification for Admin
+    const toast = useToast()
+    toast.success(`✅ Scan Berhasil & Tersimpan di Database!\n\nKode Pesanan: ${matched.kode_pesanan}\nPelanggan: ${matched.user_name || matched.pelanggan || 'User'}\nStatus DB: ${matched.status.toUpperCase()}\nTotal: Rp. ${formatPrice(matched.total_harga)}\n\nStatus pesanan otomatis diperbarui ke 'CONFIRMED'.`)
     await fetchOrders()
   } catch (err: any) {
-    alert(err.data?.message || `Pesanan dengan kode "${scanQuery.value}" tidak ditemukan di Database!`)
+    const toast = useToast()
+    toast.error(err.data?.message || `Pesanan dengan kode "${scanQuery.value}" tidak ditemukan di Database!`)
   }
 }
 
@@ -409,7 +540,8 @@ const startCameraScanner = async () => {
       requestAnimationFrame(scanVideoFrame)
     }
   } catch (err) {
-    alert('Gagal mengakses kamera. Pastikan izin kamera telah diberikan di browser.')
+    const toast = useToast()
+    toast.error('Gagal mengakses kamera. Pastikan izin kamera telah diberikan di browser.')
     showCameraModal.value = false
   }
 }
@@ -452,20 +584,22 @@ const stopCameraScanner = () => {
 
 const confirmOrder = async (order: any) => {
   try {
+    const toast = useToast()
     const res = await api.put(`/api/admin/orders/${order.id}/confirm`)
-    alert(res.message || 'Pesanan berhasil dikonfirmasi!')
+    toast.success(res.message || 'Pesanan berhasil dikonfirmasi!')
     await fetchOrders()
     if (selectedOrder.value && selectedOrder.value.id === order.id) {
       selectedOrder.value.status = 'confirmed'
     }
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal mengonfirmasi pesanan.')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal mengonfirmasi pesanan.')
   }
 }
 
 const openPayModal = (order: any) => {
   activePayOrder.value = order
-  cashInput.value = order.total_harga
+  cashInput.value = 0
   showPayModal.value = true
 }
 
@@ -474,18 +608,20 @@ const processPayment = async () => {
 
   submittingPay.value = true
   try {
+    const toast = useToast()
     const res = await api.put(`/api/admin/orders/${activePayOrder.value.id}/pay`, {
       cash: cashInput.value
     })
     showPayModal.value = false
-    alert(res.message || 'Pembayaran berhasil diselesaikan! Struk / Invoice dapat segera diserahkan kepada pelanggan.')
+    toast.success(res.message || 'Pembayaran berhasil diselesaikan! Struk / Invoice dapat segera diserahkan kepada pelanggan.')
     await fetchOrders()
     if (selectedOrder.value && selectedOrder.value.id === activePayOrder.value.id) {
       selectedOrder.value.status = 'completed'
       selectedOrder.value.cash = cashInput.value
     }
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal memproses pembayaran.')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal memproses pembayaran.')
   } finally {
     submittingPay.value = false
   }
@@ -528,6 +664,11 @@ onMounted(() => {
   if (process.client) {
     window.addEventListener('keydown', onGlobalKeydown)
   }
+})
+
+// Watch filterStatus to reset pagination
+watch(filterStatus, () => {
+  currentPage.value = 1
 })
 
 onUnmounted(() => {

@@ -1,5 +1,5 @@
 <template>
-  <header class="sticky top-0 z-50 bg-[#FFF8EC] border-b-2.5 border-[#1A1A1A] shadow-[0_4px_0px_#1A1A1A]">
+  <header :class="isDark ? 'bg-slate-900/95 border-slate-800 shadow-sm' : 'bg-[#FFF8EC] border-b-2.5 border-[#1A1A1A] shadow-[0_4px_0px_#1A1A1A]'" class="sticky top-0 z-50 transition-colors duration-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-16">
         <!-- Logo -->

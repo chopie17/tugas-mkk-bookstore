@@ -196,30 +196,129 @@
         <!-- Action Buttons -->
         <div class="flex gap-3 print:hidden">
           <button 
-            @click="printReceipt" 
-            :class="isDark ? 'bg-slate-800 hover:bg-slate-700 text-white border-slate-700' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'"
-            class="flex-1 font-black text-sm py-3 rounded-2xl transition-transform flex items-center justify-center gap-2"
-          >
-            <LucidePrinter class="w-5 h-5" />
-            <span>Print Struk</span>
-          </button>
-          
-          <button 
             @click="downloadInvoicePdf(order.id)" 
-            :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#D4B8FF] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'"
-            class="flex-1 font-black text-sm py-3 rounded-2xl transition-transform flex items-center justify-center gap-2"
+            :disabled="order.status !== 'completed'"
+            :class="order.status === 'completed' 
+              ? (isDark ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-[#D4B8FF] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]')
+              : (isDark ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-slate-200 text-slate-500 cursor-not-allowed border-2 border-slate-400')
+            "
+            class="flex-1 font-black text-sm py-3 rounded-2xl transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <LucideFileText class="w-5 h-5" />
-            <span>Unduh Invoice PDF</span>
+            <span>{{ order.status === 'completed' ? 'Unduh Invoice PDF' : 'Tunggu Status Selesai' }}</span>
+          </button>
+
+          <button 
+            @click="openReviewModal(order)"
+            :disabled="order.status !== 'completed'"
+            :class="order.status === 'completed' 
+              ? (isDark ? 'bg-amber-600 hover:bg-amber-700 text-white' : 'bg-[#FFD4A3] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]')
+              : (isDark ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-slate-200 text-slate-500 cursor-not-allowed border-2 border-slate-400')
+            "
+            class="flex-1 font-black text-sm py-3 rounded-2xl transition-transform flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            <span>⭐</span>
+            <span>{{ order.status === 'completed' ? 'Beri Rating & Ulasan' : 'Tunggu Status Selesai' }}</span>
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Modal -->
+  <div v-if="showReviewModal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div 
+      :class="isDark ? 'bg-slate-900 border-slate-700 text-white' : 'bg-[#FFF8EC] border-4 border-black text-slate-900 shadow-[8px_8px_0px_#1A1A1A]'"
+      class="rounded-3xl p-6 max-w-md w-full space-y-4 max-h-[90vh] overflow-y-auto"
+    >
+      <div class="flex justify-between items-center border-b-2 pb-3" :class="isDark ? 'border-slate-700' : 'border-black'">
+        <h3 class="font-black text-lg">⭐ Rating & Ulasan</h3>
+        <button @click="closeReviewModal()" :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFB7B2] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A]'" class="text-xs font-black px-3 py-1.5 rounded-xl">
+          ✕
+        </button>
+      </div>
+
+      <!-- Order Info -->
+      <div :class="isDark ? 'bg-slate-800 text-slate-300' : 'bg-[#FFE566] text-black'" class="p-3 rounded-2xl text-sm font-bold">
+        <p>Kode Pesanan: <span class="font-mono">{{ selectedOrder?.kode_pesanan }}</span></p>
+      </div>
+
+      <!-- Rating Stars -->
+      <div class="space-y-2">
+        <label class="block font-black text-sm">Berikan Rating:</label>
+        <div class="flex gap-2 text-3xl">
+          <button 
+            v-for="star in [1, 2, 3, 4, 5]" 
+            :key="star"
+            @click="reviewForm.rating = star"
+            :class="star <= reviewForm.rating ? 'opacity-100' : 'opacity-40'"
+            class="transition-opacity cursor-pointer hover:opacity-100"
+          >
+            ⭐
+          </button>
+        </div>
+        <p class="text-xs font-bold" :class="isDark ? 'text-slate-400' : 'text-slate-600'">
+          {{ reviewForm.rating }} dari 5 bintang
+        </p>
+      </div>
+
+      <!-- Books for Review -->
+      <div class="space-y-2">
+        <label class="block font-black text-sm">Pilih Buku:</label>
+        <div class="space-y-2 max-h-48 overflow-y-auto">
+          <button 
+            v-for="detail in (selectedOrder?.details || selectedOrder?.items || [])" 
+            :key="detail.id"
+            @click="reviewForm.book_id = detail.book_id"
+            :class="reviewForm.book_id === detail.book_id 
+              ? (isDark ? 'bg-indigo-600 text-white border-indigo-500' : 'bg-[#C8F53F] text-black border-black shadow-[2px_2px_0px_#1A1A1A]')
+              : (isDark ? 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700' : 'bg-white text-slate-900 border-2 border-black')
+            "
+            class="w-full text-left p-3 rounded-xl font-bold text-sm border-2 transition-colors"
+          >
+            📖 {{ detail.buku?.nama_buku || detail.nama_buku }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Comment -->
+      <div class="space-y-2">
+        <label class="block font-black text-sm">Komentar (opsional):</label>
+        <textarea 
+          v-model="reviewForm.komentar"
+          placeholder="Tuliskan pengalaman Anda dengan buku ini..."
+          :class="isDark ? 'bg-slate-950 border-slate-700 text-white placeholder-slate-500' : 'bg-white border-2 border-black text-slate-900 placeholder-slate-500 shadow-[2px_2px_0px_#1A1A1A]'"
+          class="w-full p-3 rounded-xl font-medium text-xs outline-none border resize-none h-20 transition-colors"
+        ></textarea>
+        <p class="text-xs font-bold" :class="isDark ? 'text-slate-500' : 'text-slate-600'">
+          {{ reviewForm.komentar?.length || 0 }} / 1000 karakter
+        </p>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex gap-3 pt-4 border-t-2" :class="isDark ? 'border-slate-700' : 'border-black'">
+        <button 
+          @click="closeReviewModal()"
+          :class="isDark ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-200 text-black border-2 border-black'"
+          class="flex-1 py-2.5 rounded-xl font-black text-xs transition-colors"
+        >
+          Batal
+        </button>
+        <button 
+          @click="submitReview"
+          :disabled="!reviewForm.rating || !reviewForm.book_id || submittingReview"
+          :class="isDark ? 'bg-indigo-600 hover:bg-indigo-700 text-white disabled:bg-slate-800' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[2px_2px_0px_#1A1A1A] disabled:opacity-50'"
+          class="flex-1 py-2.5 rounded-xl font-black text-xs transition-colors disabled:cursor-not-allowed"
+        >
+          {{ submittingReview ? 'Mengirim...' : 'Kirim Ulasan' }}
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { Printer as LucidePrinter, FileText as LucideFileText, QrCode as LucideQrCode } from 'lucide-vue-next'
+import { FileText as LucideFileText, QrCode as LucideQrCode } from 'lucide-vue-next'
 import jsQR from 'jsqr'
 
 definePageMeta({
@@ -242,6 +341,16 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 let cameraStream: MediaStream | null = null
 let animationFrameId: number | null = null
+
+// Review modal state
+const showReviewModal = ref(false)
+const selectedOrder = ref<any>(null)
+const submittingReview = ref(false)
+const reviewForm = ref({
+  rating: 5,
+  book_id: null as number | null,
+  komentar: ''
+})
 
 const formatPrice = (val: number) => {
   return new Intl.NumberFormat('id-ID').format(val || 0)
@@ -276,13 +385,57 @@ const getStatusBadgeClass = (status: string) => {
   }
 }
 
-const printReceipt = () => {
-  window.print()
-}
-
 const downloadInvoicePdf = (orderId: number) => {
   const url = `${api.apiBase}/api/orders/${orderId}/invoice-pdf`
   window.open(url, '_blank')
+}
+
+const openReviewModal = (order: any) => {
+  selectedOrder.value = order
+  // Set first book as default
+  if (order.details && order.details.length > 0) {
+    reviewForm.value.book_id = order.details[0].book_id
+  } else if (order.items && order.items.length > 0) {
+    reviewForm.value.book_id = order.items[0].book_id
+  }
+  reviewForm.value.rating = 5
+  reviewForm.value.komentar = ''
+  showReviewModal.value = true
+}
+
+const closeReviewModal = () => {
+  showReviewModal.value = false
+  selectedOrder.value = null
+  reviewForm.value = {
+    rating: 5,
+    book_id: null,
+    komentar: ''
+  }
+}
+
+const submitReview = async () => {
+  if (!reviewForm.value.rating || !reviewForm.value.book_id) {
+    const toast = useToast()
+    toast.error('Rating dan pilih buku terlebih dahulu')
+    return
+  }
+
+  submittingReview.value = true
+  try {
+    const toast = useToast()
+    await api.post('/api/reviews', {
+      book_id: reviewForm.value.book_id,
+      rating: reviewForm.value.rating,
+      komentar: reviewForm.value.komentar || null
+    })
+    toast.success('Ulasan berhasil ditambahkan! Terima kasih atas penilaian Anda.')
+    closeReviewModal()
+  } catch (err: any) {
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal menambahkan ulasan')
+  } finally {
+    submittingReview.value = false
+  }
 }
 
 const fetchOrders = async (silent = false) => {
@@ -336,10 +489,12 @@ const handleUserScanSubmit = async () => {
       }, 100)
     }
 
-    alert(`✅ Scan Berhasil & Status Diperbarui!\n\nKode Pesanan: ${matched.kode_pesanan}\nStatus Terbaru DB: ${matched.status.toUpperCase()}\nTotal: Rp. ${formatPrice(matched.total_harga)}\n\nStatus pesanan berhasil diubah di Database menjadi 'CONFIRMED'. Silakan tunjukkan ke Kasir untuk cetak Struk/Invoice!`)
+    const toast = useToast()
+    toast.success(`✅ Scan Berhasil & Status Diperbarui!\n\nKode Pesanan: ${matched.kode_pesanan}\nStatus Terbaru DB: ${matched.status.toUpperCase()}\nTotal: Rp. ${formatPrice(matched.total_harga)}\n\nStatus pesanan berhasil diubah menjadi 'CONFIRMED'.`)
     await fetchOrders()
   } catch (err: any) {
-    alert(err.data?.message || `Pesanan dengan kode "${scanQuery.value}" tidak ditemukan dalam Riwayat Anda!`)
+    const toast = useToast()
+    toast.error(err.data?.message || `Pesanan dengan kode "${scanQuery.value}" tidak ditemukan dalam Riwayat Anda!`)
   }
 }
 
@@ -358,7 +513,8 @@ const startCameraScanner = async () => {
       requestAnimationFrame(scanVideoFrame)
     }
   } catch (err) {
-    alert('Gagal mengakses kamera. Pastikan izin kamera telah diberikan di browser.')
+    const toast = useToast()
+    toast.error('Gagal mengakses kamera. Pastikan izin kamera telah diberikan di browser.')
     showCameraModal.value = false
   }
 }

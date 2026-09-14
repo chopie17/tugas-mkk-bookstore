@@ -1,14 +1,14 @@
 <template>
   <aside 
-    :class="isDark ? 'bg-slate-900 border-slate-800 text-slate-100 shadow-xl' : 'bg-[#FFF8EC] border-r-2.5 border-[#1A1A1A] text-slate-900 shadow-none'"
-    class="hidden md:flex w-64 h-screen sticky top-0 p-5 flex-col justify-between select-none shrink-0 transition-colors duration-300 overflow-y-auto custom-scrollbar"
+    :class="isDark ? 'bg-slate-900/95 border-slate-800 text-slate-200 shadow-sm' : 'bg-[#FFF8EC] border-r-2.5 border-[#1A1A1A] text-slate-900 shadow-none'"
+    class="hidden md:flex w-64 h-screen sticky top-0 p-5 flex-col justify-between select-none shrink-0 transition-colors duration-200 overflow-y-auto custom-scrollbar"
   >
     <div>
       <!-- Brand Logo -->
       <NuxtLink to="/" class="flex items-center gap-3 px-2 py-3 mb-6 group">
         <div 
-          :class="isDark ? 'bg-indigo-600 text-white shadow-indigo-500/30' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'"
-          class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xl group-hover:scale-105 transition-transform"
+          :class="isDark ? 'bg-indigo-600 text-white shadow-sm' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'"
+          class="w-10 h-10 rounded-2xl flex items-center justify-center font-bold text-xl group-hover:scale-105 transition-transform duration-200"
         >
           <LucideBookOpen class="w-5 h-5" :class="isDark ? 'text-white' : 'text-black'" />
         </div>
@@ -129,7 +129,7 @@ const adminNavItems = [
 const userNavItems = [
   { label: 'Katalog Buku', path: '/user/katalog', icon: LucideStore },
   { label: 'Keranjang', path: '/user/keranjang', icon: LucideShoppingCart },
-  { label: 'Riwayat Pesanan', path: '/user/riwayat', icon: LucideHistory, divider: true },
+  { label: 'Pesanan anda', path: '/user/riwayat', icon: LucideHistory, divider: true },
 ]
 
 const navItems = computed(() => {

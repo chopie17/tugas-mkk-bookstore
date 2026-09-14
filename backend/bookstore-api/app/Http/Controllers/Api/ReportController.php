@@ -57,6 +57,16 @@ class ReportController extends Controller
                     'pelanggan' => $order->user?->name,
                     'total_harga' => (float) $order->total_harga,
                     'created_at' => $order->created_at->format('Y-m-d H:i:s'),
+                    'orderDetails' => $order->orderDetails->map(function ($detail) {
+                        return [
+                            'qty' => $detail->qty,
+                            'harga_satuan' => (float) $detail->harga_satuan,
+                            'subtotal' => (float) $detail->subtotal,
+                            'book' => [
+                                'nama_buku' => $detail->book?->nama_buku ?? 'Buku',
+                            ],
+                        ];
+                    }),
                 ];
             }),
         ]);

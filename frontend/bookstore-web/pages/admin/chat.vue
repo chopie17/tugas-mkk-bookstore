@@ -12,7 +12,7 @@
 
     <div class="flex-1 flex overflow-hidden relative">
       <!-- User Conversations Sidebar -->
-      <aside :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'" class="w-72 sm:w-80 border-r flex flex-col shrink-0">
+      <aside :class="isDark ? 'bg-slate-900 border-slate-800' : 'bg-slate-50 border-slate-200'" class="w-full md:w-72 lg:w-80 border-r flex flex-col shrink-0">
         <div :class="isDark ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-[#FFF8EC] border-slate-200 text-slate-900'" class="p-4 border-b font-bold text-xs uppercase tracking-wider">
           Daftar Obrolan Pelanggan
         </div>
@@ -36,7 +36,7 @@
             <div class="overflow-hidden flex-grow">
               <div class="flex justify-between items-baseline">
                 <h4 :class="isDark ? 'text-white' : 'text-slate-900'" class="font-bold text-xs truncate">{{ u.name }}</h4>
-                <span :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="text-[9px]">{{ u.last_time }}</span>
+                <span :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="text-[9px] ml-2 shrink-0">{{ u.last_time }}</span>
               </div>
               <div class="flex items-center justify-between mt-0.5">
                 <p :class="isDark ? 'text-slate-400' : 'text-slate-500'" class="text-[11px] truncate flex-1">{{ u.last_message || 'Obrolan baru' }}</p>
@@ -50,7 +50,7 @@
       </aside>
 
       <!-- Chat Box Panel -->
-      <main class="flex-1 flex flex-col min-w-0 bg-transparent relative">
+      <main class="flex-1 hidden md:flex flex-col min-w-0 bg-transparent relative">
         <div v-if="!selectedUser" :class="isDark ? 'text-slate-500' : 'text-slate-400'" class="flex-grow flex flex-col items-center justify-center p-8 text-center">
           <div class="text-5xl mb-3">💬</div>
           <h4 :class="isDark ? 'text-slate-300' : 'text-slate-700'" class="font-bold text-sm">Pilih Obrolan Pelanggan</h4>
@@ -195,13 +195,16 @@ const sendMessage = async () => {
   pesanInput.value = ''
 
   try {
+    const toast = useToast()
     await api.post('/api/chats', {
       user_id: selectedUser.value.id,
       pesan: msg
     })
+    toast.success('Pesan berhasil dikirim!')
     await fetchConversation()
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal membalas pesan')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal membalas pesan')
   } finally {
     sending.value = false
   }

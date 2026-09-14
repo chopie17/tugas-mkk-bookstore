@@ -497,7 +497,8 @@ const doDeleteForMe = async () => {
     chats.value = chats.value.filter((c: any) => !removed.has(c.id))
     cancelSelection()
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal menyembunyikan pesan')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal menyembunyikan pesan')
   } finally {
     processing.value = false
     closeContextMenu()
@@ -516,7 +517,8 @@ const doDeleteForAll = async () => {
     chats.value = chats.value.filter((c: any) => !removed.has(c.id))
     cancelSelection()
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal menghapus pesan untuk semua')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal menghapus pesan untuk semua')
   } finally {
     processing.value = false
     closeContextMenu()
@@ -599,7 +601,8 @@ const sendMessage = async () => {
     })
     await fetchChats()
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal mengirim pesan')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal mengirim pesan')
   } finally {
     sending.value = false
   }

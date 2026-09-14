@@ -43,9 +43,10 @@
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
       <div 
         v-for="book in books" 
-        :key="book.id" 
+        :key="book.id"
+        @click="goToDetail(book)"
         :class="isDark ? 'bg-slate-900 border-slate-800 hover:border-slate-700 shadow-slate-950/50' : 'bg-[#FFF8EC] border-2.5 border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] hover:translate-x-[-2px] hover:translate-y-[-2px]'"
-        class="rounded-2xl transition-all overflow-hidden flex flex-col justify-between group"
+        class="rounded-2xl transition-all overflow-hidden flex flex-col justify-between group cursor-pointer"
       >
         <div>
           <div :class="isDark ? 'bg-slate-950' : 'bg-[#FAF7F0] border-b-2 border-[#1A1A1A]'" class="h-52 flex items-center justify-center overflow-hidden relative">
@@ -70,7 +71,7 @@
           </div>
 
           <button 
-            @click="addToCart(book)" 
+            @click.stop="addToCart(book)" 
             :disabled="book.stok <= 0" 
             :class="isDark ? 'bg-indigo-600 hover:bg-indigo-700 text-white' : 'bg-[#C8F53F] hover:bg-[#b8e82f] text-black border-2 border-black shadow-[2.5px_2.5px_0px_#1A1A1A] active:translate-x-[1px] active:translate-y-[1px]'"
             class="px-4 py-2 rounded-xl font-black text-xs transition-all flex items-center gap-1.5 disabled:opacity-50"
@@ -87,6 +88,7 @@
 
 <script setup lang="ts">
 const route = useRoute()
+const router = useRouter()
 const api = useApi()
 const cartStore = useCartStore()
 const { isDark } = useTheme()
@@ -101,6 +103,10 @@ const formatNumber = (val: number) => {
   return new Intl.NumberFormat('id-ID').format(val)
 }
 
+const goToDetail = (book: any) => {
+  router.push(`/books/${book.id}`)
+}
+
 const fetchBooks = async () => {
   loading.value = true
   try {
@@ -109,7 +115,16 @@ const fetchBooks = async () => {
     if (selectedCategory.value) params.category_id = selectedCategory.value
 
     const res = await api.get('/api/books', { params })
-    books.value = res.data || []
+    let data = res.data || []
+    
+    // Sort: stok > 0 first, then stok = 0 at the bottom
+    data.sort((a: any, b: any) => {
+      if (a.stok > 0 && b.stok <= 0) return -1
+      if (a.stok <= 0 && b.stok > 0) return 1
+      return 0
+    })
+    
+    books.value = data
   } catch (e) {
     console.error(e)
   } finally {
@@ -119,10 +134,12 @@ const fetchBooks = async () => {
 
 const addToCart = async (book: any) => {
   try {
+    const toast = useToast()
     await cartStore.addToCart(book, 1)
-    alert(`'${book.nama_buku}' ditambahkan ke keranjang.`)
+    toast.success(`'${book.nama_buku}' ditambahkan ke keranjang.`)
   } catch (err: any) {
-    alert(err.message || 'Gagal menambahkan ke keranjang.')
+    const toast = useToast()
+    toast.error(err.message || 'Gagal menambahkan ke keranjang.')
   }
 }
 

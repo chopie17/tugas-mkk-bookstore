@@ -403,10 +403,13 @@ const saveBook = async () => {
 const deleteBook = async (b: any) => {
   if (!confirm(`Yakin ingin menghapus buku '${b.nama_buku}'?`)) return
   try {
+    const toast = useToast()
     await api.delete(`/api/admin/books/${b.id}`)
+    toast.success('Buku berhasil dihapus!')
     await fetchBooks()
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal menghapus buku.')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal menghapus buku.')
   }
 }
 

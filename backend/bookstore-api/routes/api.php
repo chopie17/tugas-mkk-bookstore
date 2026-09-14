@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\ChatController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ReportController;
+use App\Http\Controllers\Api\ReviewController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,9 @@ Route::post('/forgot-password/reset', [AuthController::class, 'resetPassword']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/books', [BookController::class, 'index']);
 Route::get('/books/{book}', [BookController::class, 'show']);
+
+// Public Reviews (Read-only)
+Route::get('/books/{book}/reviews', [ReviewController::class, 'indexByBook']);
 
 // Invoice & Report PDF Download Routes (Accessible via Direct Link)
 Route::get('/orders/{order}/invoice-pdf', [OrderController::class, 'invoicePdf']);
@@ -65,6 +69,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/chats/delete-for-all', [ChatController::class, 'deleteForAll']);
     Route::post('/chats/delete-batch', [ChatController::class, 'destroyBatch']);
     Route::delete('/chats/{id}', [ChatController::class, 'destroy']);
+
+    // Review Routes (Authenticated users)
+    Route::post('/reviews', [ReviewController::class, 'store']);
+    Route::put('/reviews/{review}', [ReviewController::class, 'update']);
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy']);
 
     // Admin Only Routes
     Route::middleware(['role:admin'])->prefix('admin')->group(function () {

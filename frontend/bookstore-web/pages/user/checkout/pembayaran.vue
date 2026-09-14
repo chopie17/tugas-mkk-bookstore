@@ -125,10 +125,12 @@ const confirmOrder = async () => {
     }
     cartStore.clearCheckoutSelection()
 
-    alert(res.message || 'Pesanan berhasil dibuat!')
+    const toast = useToast()
+    toast.success(res.message || 'Pesanan berhasil dibuat!')
     navigateTo('/user/riwayat')
   } catch (err: any) {
-    alert(err.data?.message || 'Gagal memproses checkout.')
+    const toast = useToast()
+    toast.error(err.data?.message || 'Gagal memproses checkout.')
   } finally {
     loading.value = false
   }

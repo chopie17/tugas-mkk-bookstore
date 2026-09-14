@@ -73,7 +73,8 @@ const form = reactive({
 })
 
 const sendMessage = () => {
-  alert('Terima kasih! Pesan Anda telah terkirim.')
+  const toast = useToast()
+  toast.success('Terima kasih! Pesan Anda telah terkirim.')
   form.name = ''
   form.email = ''
   form.message = ''

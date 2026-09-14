@@ -206,7 +206,8 @@ const handleReset = async () => {
       password: newPassword.value,
       password_confirmation: confirmPassword.value
     })
-    alert(res.message)
+    const toast = useToast()
+    toast.success(res.message || 'Password berhasil diperbarui!')
     navigateTo('/login')
   } catch (err: any) {
     errorMessage.value = err.data?.message || 'Gagal memperbarui password.'

@@ -1,7 +1,7 @@
 <template>
   <header 
-    :class="isDark ? 'bg-slate-900 border-slate-800 text-white shadow-md' : 'bg-[#FAF7F0] border-b-2.5 border-[#1A1A1A] text-slate-900 shadow-none'"
-    class="sticky top-0 z-50 h-16 md:h-20 border-b px-4 md:px-8 flex items-center justify-between shrink-0 transition-colors duration-300"
+    :class="isDark ? 'bg-slate-900/80 border-slate-800 text-slate-200 shadow-sm backdrop-blur-sm' : 'bg-[#FAF7F0] border-b-2.5 border-[#1A1A1A] text-slate-900 shadow-none'"
+    class="sticky top-0 z-50 h-16 md:h-20 border-b px-4 md:px-8 flex items-center justify-between shrink-0 transition-colors duration-200"
   >
     <!-- Brand Logo on Mobile + Page Title -->
     <div class="flex items-center gap-3">
@@ -22,22 +22,18 @@
       <span class="md:hidden font-light" :class="isDark ? 'text-slate-700' : 'text-slate-400'">|</span>
 
       <!-- Page Title -->
-      <h1 class="text-base sm:text-xl md:text-2xl font-black tracking-tight" :class="isDark ? 'text-white' : 'text-slate-900'">
-        {{ pageTitle }}
-      </h1>
     </div>
 
     <!-- Right Controls: Theme Switcher & User Profile -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-3"
       <!-- Theme Switcher Button -->
       <button 
         @click="toggleTheme()" 
-        :class="isDark ? 'bg-slate-800 border-slate-700 text-slate-200 hover:bg-slate-700' : 'bg-[#FFE566] border-2 border-[#1A1A1A] text-black shadow-[2.5px_2.5px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'"
-        class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black transition-all"
+        :class="isDark ? 'bg-slate-800 border border-slate-700 text-slate-300 hover:bg-slate-700' : 'bg-[#FFE566] border-2 border-[#1A1A1A] text-black shadow-[2.5px_2.5px_0px_#1A1A1A] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-[1px] active:translate-y-[1px]'"
+        class="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-black transition-all duration-200"
         :title="isDark ? 'Ubah ke Tema Retro Terang' : 'Ubah ke Tema Gelap'"
       >
         <span class="text-sm">{{ isDark ? '🌙' : '☀️' }}</span>
-        <span class="hidden sm:inline">{{ isDark ? 'Gelap' : 'Retro' }}</span>
       </button>
 
       <!-- User Profile Badge -->
