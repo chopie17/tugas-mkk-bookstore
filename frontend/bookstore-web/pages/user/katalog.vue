@@ -87,10 +87,15 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  middleware: 'auth'
+})
+
 const route = useRoute()
 const router = useRouter()
 const api = useApi()
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 const { isDark } = useTheme()
 
 const searchQuery = ref('')
@@ -133,12 +138,16 @@ const fetchBooks = async () => {
 }
 
 const addToCart = async (book: any) => {
+  const toast = useToast()
+  if (!authStore.isAuthenticated) {
+    toast.error('Silakan login terlebih dahulu untuk membeli buku!')
+    navigateTo('/login')
+    return
+  }
   try {
-    const toast = useToast()
     await cartStore.addToCart(book, 1)
     toast.success(`'${book.nama_buku}' ditambahkan ke keranjang.`)
   } catch (err: any) {
-    const toast = useToast()
     toast.error(err.message || 'Gagal menambahkan ke keranjang.')
   }
 }

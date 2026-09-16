@@ -56,35 +56,22 @@ export const useCartStore = defineStore('cart', () => {
   const totalPrice = computed(() => items.value.reduce((acc, item) => acc + (item.harga_jual * item.qty), 0))
 
   const addToCart = async (book: { id: number; nama_buku: string; harga_jual: number; gambar: string | null; stok: number }, qty: number = 1) => {
+    if (!authStore.isAuthenticated) {
+      throw new Error('Silakan login terlebih dahulu untuk menambahkan buku ke keranjang.')
+    }
+
     const existing = items.value.find(i => i.book_id === book.id)
     const newQty = (existing ? existing.qty : 0) + qty
     if (newQty > book.stok) {
       throw new Error(`Stok buku tidak mencukupi (Sisa stok: ${book.stok})`)
     }
 
-    if (authStore.isAuthenticated) {
-      try {
-        await api.post('/api/cart', { book_id: book.id, qty })
-        await fetchCart()
-        return
-      } catch (err: any) {
-        throw new Error(err.data?.message || 'Gagal menambahkan ke keranjang')
-      }
+    try {
+      await api.post('/api/cart', { book_id: book.id, qty })
+      await fetchCart()
+    } catch (err: any) {
+      throw new Error(err.data?.message || 'Gagal menambahkan ke keranjang')
     }
-
-    if (existing) {
-      existing.qty = newQty
-    } else {
-      items.value.push({
-        book_id: book.id,
-        nama_buku: book.nama_buku,
-        harga_jual: book.harga_jual,
-        gambar: book.gambar,
-        stok: book.stok,
-        qty
-      })
-    }
-    saveCart()
   }
 
   const updateQty = async (bookId: number, qty: number) => {

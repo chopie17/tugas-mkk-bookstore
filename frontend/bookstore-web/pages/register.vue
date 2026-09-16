@@ -4,6 +4,12 @@
       :class="isDark ? 'bg-slate-900 border-slate-800 shadow-2xl text-slate-100' : 'bg-[#FFF8EC] border-3 border-[#1A1A1A] shadow-[8px_8px_0px_#1A1A1A] text-slate-900'"
       class="max-w-lg w-full p-8 rounded-3xl transition-colors duration-300"
     >
+      <div class="mb-4">
+        <NuxtLink to="/" :class="isDark ? 'text-indigo-400 hover:text-indigo-300' : 'text-slate-900 hover:underline'" class="inline-flex items-center gap-1.5 text-xs font-black">
+          &larr; Kembali ke Beranda
+        </NuxtLink>
+      </div>
+
       <div class="text-center mb-8">
         <div 
           :class="isDark ? 'bg-indigo-600 text-white' : 'bg-[#C8F53F] text-black border-2 border-black shadow-[3px_3px_0px_#1A1A1A]'"

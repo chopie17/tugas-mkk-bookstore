@@ -188,10 +188,15 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({
+  layout: 'landing'
+})
+
 const route = useRoute()
 const router = useRouter()
 const api = useApi()
 const cartStore = useCartStore()
+const authStore = useAuthStore()
 const { isDark } = useTheme()
 const toast = useToast()
 
@@ -253,6 +258,11 @@ const fetchReviews = async () => {
 }
 
 const handleAddToCart = async () => {
+  if (!authStore.isAuthenticated) {
+    toast.error('Silakan login terlebih dahulu untuk membeli buku!')
+    navigateTo('/login')
+    return
+  }
   try {
     await cartStore.addToCart(book.value, qty.value)
     toast.success(`'${book.value.nama_buku}' ditambahkan ke keranjang.`)

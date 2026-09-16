@@ -73,7 +73,7 @@ export const useAuthStore = defineStore('auth', () => {
         localStorage.removeItem('auth_token')
       }
       user.value = null
-      navigateTo('/login')
+      navigateTo('/')
     }
   }
 
